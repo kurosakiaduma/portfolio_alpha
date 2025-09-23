@@ -1,0 +1,140 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RetroBackground from '../components/RetroBackground.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+// import ProjectsIsland from '../components/ProjectsIsland.tsx';
+// import SkillsIsland from '../components/SkillsIsland.tsx';
+// import GalleryIsland from '../components/GalleryIsland.tsx';
+// import MusicIsland from '../components/MusicIsland.tsx';
+import Footer from '../components/Footer.astro';
+import SOCIALS from '../lib/socials';
+const socials = SOCIALS as { id: string; href: string; label: string }[];
+---
+
+<Layout title="ADUMA TEVIN JOEL • Portfolio" description="Pythonaut Computer Scientist. Full-Stack AI Engineer. Avid Problem Solver.">
+	<!-- Retro animated background -->
+	<RetroBackground />
+	
+	<!-- Fixed navigation -->
+	<Nav />
+	
+	<!-- Main content -->
+	<main class="relative z-10">
+		<!-- Hero Section -->
+		<Hero />
+		
+		<!-- About Section -->
+		<section id="about" class="py-20 relative">
+			<About />
+		</section>
+		
+		<!-- Projects Section -->
+		<section id="projects" class="py-20 relative">
+			<div class="max-w-7xl mx-auto px-6">
+				<div class="text-center mb-16">
+					<h2 class="font-pixel text-3xl md:text-5xl text-retro-magenta retro-glow-magenta mb-4">
+						Projects
+					</h2>
+					<p class="text-text-secondary text-lg max-w-2xl mx-auto">
+						A collection of projects showcasing modern web technologies, creative problem-solving, and innovative design solutions.
+					</p>
+				</div>
+				<!-- <ProjectsIsland client:load /> -->
+				<div class="text-center text-text-muted font-mono">
+					Projects component coming soon...
+				</div>
+			</div>
+		</section>
+		
+		<!-- Skills Section -->
+		<section id="skills" class="py-20 relative">
+			<div class="max-w-7xl mx-auto px-6">
+				<div class="text-center mb-16">
+					<h2 class="font-pixel text-3xl md:text-5xl text-retro-lime retro-glow-lime mb-4">
+						Skills
+					</h2>
+					<p class="text-text-secondary text-lg max-w-2xl mx-auto">
+						Technologies, frameworks, and tools I use to bring ideas to life and create exceptional digital experiences.
+					</p>
+				</div>
+				<!-- <SkillsIsland client:load /> -->
+				<div class="text-center text-text-muted font-mono">
+					Skills component coming soon...
+				</div>
+			</div>
+		</section>
+		
+		<!-- Gallery Section -->
+		<section id="gallery" class="py-20 relative">
+			<div class="max-w-7xl mx-auto px-6">
+				<div class="text-center mb-16">
+					<h2 class="font-pixel text-3xl md:text-5xl text-retro-amber retro-glow-amber mb-4">
+						Gallery
+					</h2>
+					<p class="text-text-secondary text-lg max-w-2xl mx-auto">
+						Visual highlights, design experiments, and creative explorations that capture the essence of digital artistry.
+					</p>
+				</div>
+				<!-- <GalleryIsland client:load /> -->
+				<div class="text-center text-text-muted font-mono">
+					Gallery component coming soon...
+				</div>
+			</div>
+		</section>
+		
+		<!-- Music Section -->
+		<section id="music" class="py-20 relative">
+			<div class="max-w-7xl mx-auto px-6">
+				<div class="text-center mb-16">
+					<h2 class="font-pixel text-3xl md:text-5xl text-retro-purple retro-glow mb-4">
+						Music
+					</h2>
+					<p class="text-text-secondary text-lg max-w-2xl mx-auto">
+						Currently listening to and recent tracks that fuel creativity and inspire innovative solutions.
+					</p>
+				</div>
+				<!-- <MusicIsland client:load /> -->
+				<div class="text-center text-text-muted font-mono">
+					Music component coming soon...
+				</div>
+			</div>
+		</section>
+		
+		<!-- Contact Section -->
+		<section id="contact" class="py-20 relative">
+			<div class="max-w-4xl mx-auto px-6 text-center">
+				<h2 class="font-pixel text-3xl md:text-5xl text-retro-cyan retro-glow-cyan mb-8">
+					Get In Touch
+				</h2>
+				<p class="text-text-secondary text-lg mb-12 max-w-2xl mx-auto">
+					Ready to collaborate on your next project? Let's create something amazing together.
+				</p>
+				
+				<div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+					<a 
+						href="mailto:tevin74@live.com" 
+						class="group relative px-8 py-4 bg-transparent border-2 border-retro-cyan text-retro-cyan font-mono text-lg transition-all duration-300 hover:bg-retro-cyan hover:text-retro-bg hover:shadow-neon-cyan"
+					>
+						<span class="relative z-10">Send Message</span>
+						<div class="absolute inset-0 bg-retro-cyan opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+					</a>
+					
+					<a 
+						href="https://linkedin.com/in/kurosakiaduma" 
+						target="_blank" 
+						rel="noopener noreferrer"
+						class="group relative px-8 py-4 bg-transparent border-2 border-retro-magenta text-retro-magenta font-mono text-lg transition-all duration-300 hover:bg-retro-magenta hover:text-retro-bg hover:shadow-neon-magenta"
+					>
+						<span class="relative z-10">LinkedIn</span>
+						<div class="absolute inset-0 bg-retro-magenta opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+					</a>
+				</div>
+			</div>
+		</section>
+	</main>
+	
+	<!-- Footer -->
+	<Footer />
+</Layout>

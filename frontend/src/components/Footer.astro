@@ -1,0 +1,147 @@
+---
+import SOCIALS from '../lib/socials';
+import Icon from './Icon.astro';
+---
+<!-- Footer.astro - Site footer with links and info -->
+
+<footer class="bg-retro-bg-light/50 border-t border-retro-cyan/20 py-12 mt-20">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid md:grid-cols-3 gap-8 mb-8">
+      <!-- Brand -->
+      <div class="space-y-4">
+        <h3 class="font-pixel text-lg text-retro-cyan retro-glow-cyan">ADUMA TEVIN JOEL</h3>
+        <nav class="space-y-2">
+          <a href="#projects" class="block text-text-muted hover:text-retro-cyan transition-colors duration-300 text-sm">
+            Projects
+          </a>
+          <a href="#skills" class="block text-text-muted hover:text-retro-cyan transition-colors duration-300 text-sm">
+            Skills
+          </a>
+          <a href="#contact" class="block text-text-muted hover:text-retro-cyan transition-colors duration-300 text-sm">
+            Contact
+          </a>
+        </nav>
+      </div>
+      
+      <!-- Contact Info -->
+      <div class="space-y-4">
+        <h4 class="font-mono text-retro-lime text-sm uppercase tracking-wider">
+          Connect
+        </h4>
+        <div class="space-y-2">
+          {SOCIALS.map((s: { id: string; href: string; label: string }) => (
+            <a href={s.href} target="_blank" rel="noopener noreferrer" class="footer-link block text-text-muted hover:text-retro-cyan transition-colors duration-300 text-sm flex items-center gap-3" aria-label={s.label}>
+                {s.id === 'github' && <Icon id="github" class="w-5 h-5 icon-center" />}
+                {s.id === 'linkedin' && <Icon id="linkedin" class="w-5 h-5 icon-center" />}
+                {s.id === 'x' && <Icon id="x" class="w-5 h-5 icon-center" />}
+                {s.id === 'instagram' && <Icon id="instagram" class="w-5 h-5 icon-center" />}
+                {s.id === 'medium' && <Icon id="medium" class="w-5 h-5 icon-center" />}
+                {s.id === 'email' && <Icon id="email" class="w-5 h-5 icon-center" />}
+              <span>{s.label}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Copyright -->
+    <div class="pt-8 border-t border-retro-cyan/10 text-center">
+      <p class="text-text-muted text-sm font-mono">
+        © 2025 ADUMA TEVIN JOEL. Built with 
+        <span class="text-retro-cyan">Astro</span> & 
+        <span class="text-retro-magenta">💜</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  import { gsap } from '../lib/gsap.ts';
+
+  // Footer hover animations
+  document.addEventListener('DOMContentLoaded', () => {
+    setupFooterAnimations();
+  });
+
+  function setupFooterAnimations() {
+    // Footer link hover animations
+    const footerLinks = document.querySelectorAll('.footer-link');
+    
+    footerLinks.forEach((link: Element) => {
+      const linkElement = link as HTMLElement;
+      
+      linkElement.addEventListener('mouseenter', () => {
+        gsap.to(linkElement, {
+          duration: 0.3,
+          x: 10,
+          scale: 1.05,
+          color: '#00ffd5',
+          textShadow: '0 0 10px rgba(0, 255, 213, 0.5)',
+          ease: 'power2.out'
+        });
+      });
+      
+      linkElement.addEventListener('mouseleave', () => {
+        gsap.to(linkElement, {
+          duration: 0.3,
+          x: 0,
+          scale: 1,
+          color: '#666666',
+          textShadow: '0 0 0px transparent',
+          ease: 'power2.out'
+        });
+      });
+    });
+
+    // Animate footer on scroll into view
+    const footer = document.querySelector('footer');
+    if (footer) {
+      gsap.fromTo(footer, 
+        {
+          y: 50,
+          opacity: 0
+        },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: footer,
+            start: 'top 80%',
+            end: 'top 50%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      );
+    }
+
+    // Animate copyright text
+    const copyright = document.querySelector('footer p');
+    if (copyright) {
+      const spans = copyright.querySelectorAll('span');
+      
+      spans.forEach((span: Element, index: number) => {
+        const spanElement = span as HTMLElement;
+        
+        spanElement.addEventListener('mouseenter', () => {
+          gsap.to(spanElement, {
+            duration: 0.3,
+            scale: 1.2,
+            y: -2,
+            ease: 'back.out(1.7)'
+          });
+        });
+        
+        spanElement.addEventListener('mouseleave', () => {
+          gsap.to(spanElement, {
+            duration: 0.3,
+            scale: 1,
+            y: 0,
+            ease: 'power2.out'
+          });
+        });
+      });
+    }
+  }
+</script>

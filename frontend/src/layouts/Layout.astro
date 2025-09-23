@@ -1,0 +1,81 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const { 
+	title = "ADUMA TEVIN JOEL • Portfolio", 
+	description = "Pythonaut Computer Scientist. Full-Stack AI Engineer. Avid Problem Solver.",
+  image = "/og-image.jpg"
+} = Astro.props;
+
+// Build canonical and image URLs only when Astro.site is set (guard server runtime)
+const canonicalURL = Astro.site ? new URL(Astro.url.pathname, Astro.site).toString() : null;
+const ogImage = Astro.site ? new URL(image, Astro.site).toString() : image;
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		
+		<!-- Primary Meta Tags -->
+		<title>{title}</title>
+		<meta name="title" content={title} />
+		<meta name="description" content={description} />
+		{canonicalURL && <link rel="canonical" href={canonicalURL} />}
+		
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		{canonicalURL && <meta property="og:url" content={canonicalURL} />}
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={ogImage} />
+		
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		{canonicalURL && <meta property="twitter:url" content={canonicalURL} />}
+		<meta property="twitter:title" content={title} />
+		<meta property="twitter:description" content={description} />
+		<meta property="twitter:image" content={ogImage} />
+		
+		<!-- Theme Color -->
+		<meta name="theme-color" content="#00ffd5" />
+		<meta name="msapplication-TileColor" content="#0a0a0a" />
+		
+		<!-- Preconnect to font origins -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		
+		<!-- Import global styles -->
+		<link rel="stylesheet" href="/src/styles/global.css">
+		
+		<!-- JSON-LD Schema -->
+		<script type="application/ld+json">
+		{
+		  "@context": "https://schema.org",
+		  "@type": "Person",
+		  "name": "ADUMA TEVIN JOEL",
+		  "url": "https://taduma.me",
+		  "jobTitle": "Pythonaut Computer Scientist. Full-Stack AI Engineer",
+		  "description": "Pythonaut Computer Scientist. Full-Stack AI Engineer. Avid Problem Solver.",
+			"sameAs": [
+				"https://github.com/kurosakiaduma",
+				"https://linkedin.com/in/tevin-aduma",
+				"https://twitter.com/kurosakiaduma",
+				"https://instagram.com/__aduma",
+				"https://medium.com/@kurosakiaduma",
+				"https://taduma.me"
+			]
+		}
+		</script>
+	</head>
+	<body class="bg-retro-bg text-text-primary antialiased">
+		<slot />
+	</body>
+</html>

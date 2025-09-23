@@ -1,0 +1,393 @@
+---
+// Hero.astro - Main hero section with animated intro
+import Model3D from './Model3D.tsx';
+---
+
+<section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-8 md:pt-12 lg:pt-20">
+  <!-- Hero container with space for 3D avatar -->
+  <div class="hero-container relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start lg:items-center">
+    <!-- 3D Avatar (top on mobile, left side on desktop) -->
+    <div class="avatar-container flex justify-center items-start lg:items-center order-1 lg:order-1 -mt-8 lg:mt-0">
+      <!-- 3D animated avatar -->
+      <div class="avatar-model w-80 h-80 sm:w-96 sm:h-96 lg:w-[48rem] lg:h-[48rem] rounded-full bg-gradient-to-br from-retro-cyan/10 to-retro-magenta/10 flex items-center justify-center overflow-hidden">
+        <Model3D 
+          client:load
+          key="hero-model"
+          modelPath="/animated_model.glb"
+          size={{ width: 750, height: 750 }}
+          autoRotate={true}
+          cameraPosition={[0, 0.5, 3]}
+          containerClass="rounded-full"
+        />
+      </div>
+    </div>
+    
+    <!-- Hero content (bottom on mobile, right side on desktop) -->
+    <div class="hero-content text-center lg:text-left order-2 lg:order-2">
+    <!-- Glitch effect text -->
+      <!-- Main title -->
+      <div class="hero-title-wrapper mb-6">
+        <h1 class="hero-title font-pixel text-white leading-tight whitespace-nowrap" style="font-size: clamp(2.2rem, 3.2rem + 2.8vw, 5.0rem);">
+          <span class="glitch-text" data-text="ADUMA TEVIN JOEL">TEVIN JOEL</span>
+        </h1>
+      </div>    
+      <!-- Animated subtitle -->
+      <div class="hero-subtitle-wrapper mb-12">
+      <p class="hero-subtitle font-mono text-lg md:text-xl lg:text-2xl text-retro-magenta retro-glow-magenta">
+        <span class="typing-text" data-text="Pythonaut Computer Scientist • Full-Stack AI Engineer • Avid Problem Solver"></span>
+        <span class="cursor">█</span>
+      </p>
+    </div>
+    
+    <!-- Animated description -->
+    <div class="hero-description-wrapper mb-20">
+      <p class="hero-description max-w-3xl mx-auto text-lg md:text-xl text-text-secondary leading-relaxed opacity-0">
+        Building AI-first applications, tooling, and systems with a focus on clean abstractions, reproducible pipelines, and elegant UX. 
+        I solve hard problems at the intersection of algorithms, systems, and product.
+      </p>
+    </div>
+    
+    <!-- Call-to-action buttons -->
+    <div class="hero-cta-wrapper flex flex-col sm:flex-row gap-6 justify-center items-center opacity-0">
+      <a 
+        href="#projects" 
+        class="cta-primary group relative px-8 py-4 bg-transparent border-2 border-retro-cyan text-retro-cyan font-mono text-lg rounded-full transition-all duration-300 hover:bg-retro-cyan hover:text-retro-bg hover:shadow-neon-cyan transform hover:scale-105"
+      >
+        <span class="relative z-10">View Projects</span>
+        <div class="absolute inset-0 bg-retro-cyan opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full"></div>
+      </a>
+      
+      <a 
+        href="#contact" 
+        class="cta-secondary group relative px-8 py-4 bg-transparent border-2 border-retro-magenta text-retro-magenta font-mono text-lg rounded-full transition-all duration-300 hover:bg-retro-magenta hover:text-retro-bg hover:shadow-neon-magenta transform hover:scale-105"
+      >
+        <span class="relative z-10">Get In Touch</span>
+        <div class="absolute inset-0 bg-retro-magenta opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full"></div>
+      </a>
+    </div>
+  </div>
+  </div>
+  
+  <!-- Scroll indicator -->
+  <div class="scroll-indicator absolute bottom-4 lg:bottom-6 left-1/2 transform -translate-x-1/2 opacity-0">
+    <div class="flex flex-col items-center space-y-2">
+      <span class="text-text-muted font-mono text-xs hidden sm:block">SCROLL</span>
+      <div class="scroll-arrow w-4 h-6 sm:w-5 sm:h-8 border-2 border-retro-lime rounded-full relative">
+        <div class="scroll-dot w-1 h-1 bg-retro-lime rounded-full absolute top-1 sm:top-1.5 left-1/2 transform -translate-x-1/2"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-title {
+    background: linear-gradient(135deg, #e0f2f1, #b2dfdb, #80cbc4);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 300% 300%;
+    animation: subtleGradientShift 8s ease-in-out infinite;
+    text-shadow: 0 0 30px rgba(224, 242, 241, 0.3);
+  }
+
+  @keyframes subtleGradientShift {
+    0%, 100% { 
+      background-position: 0% 50%; 
+      filter: brightness(1);
+    }
+    25% { 
+      background-position: 100% 0%; 
+      filter: brightness(1.1);
+    }
+    50% { 
+      background-position: 100% 100%; 
+      filter: brightness(0.9);
+    }
+    75% { 
+      background-position: 0% 100%; 
+      filter: brightness(1.05);
+    }
+  }
+
+  .glitch-text {
+    position: relative;
+    display: inline-block;
+  }
+
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+  }
+
+  .glitch-text::before {
+    animation: glitch-1 3s infinite linear alternate-reverse;
+    color: rgba(255, 0, 170, 0.3);
+    z-index: -1;
+  }
+
+  .glitch-text::after {
+    animation: glitch-2 4s infinite linear alternate-reverse;
+    color: rgba(0, 255, 213, 0.2);
+    z-index: -2;
+  }
+
+  @keyframes glitch-1 {
+    0% { transform: translate(0); opacity: 0; }
+    2% { transform: translate(-1px, 1px); opacity: 0.8; }
+    4% { transform: translate(-1px, -1px); opacity: 0; }
+    6% { transform: translate(1px, 1px); opacity: 0.6; }
+    8% { transform: translate(1px, -1px); opacity: 0; }
+    10% { transform: translate(0); opacity: 0; }
+    100% { transform: translate(0); opacity: 0; }
+  }
+
+  @keyframes glitch-2 {
+    0% { transform: translate(0); opacity: 0; }
+    3% { transform: translate(1px, 1px); opacity: 0.5; }
+    6% { transform: translate(1px, -1px); opacity: 0; }
+    9% { transform: translate(-1px, 1px); opacity: 0.4; }
+    12% { transform: translate(-1px, -1px); opacity: 0; }
+    15% { transform: translate(0); opacity: 0; }
+    100% { transform: translate(0); opacity: 0; }
+  }
+
+  .typing-text {
+    display: inline-block;
+    min-height: 1.2em;
+  }
+
+  .cursor {
+    animation: blink 1s infinite;
+    color: #ff00aa;
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  .scroll-arrow {
+    animation: scrollBounce 2s infinite;
+  }
+
+  .scroll-dot {
+    animation: scrollDot 2s infinite;
+  }
+
+  @keyframes scrollBounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+  }
+
+  @keyframes scrollDot {
+    0% { transform: translateX(-50%) translateY(0); opacity: 0; }
+    40% { opacity: 1; }
+    80% { transform: translateX(-50%) translateY(20px); opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-title,
+    .glitch-text::before,
+    .glitch-text::after,
+    .typing-text,
+    .cursor,
+    .scroll-arrow,
+    .scroll-dot {
+      animation: none;
+    }
+    
+    .hero-title {
+      background: #00ffd5;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .glitch-text::before,
+    .glitch-text::after {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from '../lib/gsap.ts';
+
+  // Hero entrance animation
+  const heroTl = gsap.timeline({ paused: true });
+
+  heroTl
+    .from('.hero-title', {
+      duration: 1.2,
+      y: 100,
+      opacity: 0,
+      ease: 'power4.out'
+    })
+    .from('.hero-subtitle', {
+      duration: 1,
+      y: 50,
+      opacity: 0,
+      ease: 'power3.out'
+    }, '-=0.6')
+    .to('.hero-description', {
+      duration: 0.8,
+      opacity: 1,
+      y: 0,
+      ease: 'power2.out'
+    }, '-=0.4')
+    .to('.hero-cta-wrapper', {
+      duration: 0.8,
+      opacity: 1,
+      y: 0,
+      ease: 'power2.out'
+    }, '-=0.4')
+    .to('.scroll-indicator', {
+      duration: 0.6,
+      opacity: 1,
+      ease: 'power2.out'
+    }, '-=0.2');
+
+  // Typing effect
+  function typeWriter(element: HTMLElement, text: string, speed: number = 50) {
+    let i = 0;
+    element.textContent = '';
+    
+    function type() {
+      if (i < text.length) {
+        element.textContent += text.charAt(i);
+        i++;
+        setTimeout(type, speed);
+      } else {
+        // After typing is complete, wait 2 seconds then restart
+        setTimeout(() => {
+          eraseText(element, text, speed);
+        }, 2000);
+      }
+    }
+    
+    type();
+  }
+  
+  function eraseText(element: HTMLElement, fullText: string, speed: number) {
+    let text = element.textContent || '';
+    
+    function erase() {
+      if (text.length > 0) {
+        text = text.slice(0, -1);
+        element.textContent = text;
+        setTimeout(erase, speed / 2);
+      } else {
+        // After erasing, wait 1 second then start typing again
+        setTimeout(() => {
+          typeWriter(element, fullText, speed);
+        }, 1000);
+      }
+    }
+    
+    erase();
+  }
+
+  // Start animation when DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    heroTl.play();
+    setupHoverAnimations();
+    
+    // Start typing effect
+    const typingElement = document.querySelector('.typing-text') as HTMLElement;
+    if (typingElement) {
+      const text = typingElement.getAttribute('data-text') || '';
+      typeWriter(typingElement, text, 60);
+    }
+  });
+
+  // GSAP hover animations for buttons
+  function setupHoverAnimations() {
+    // CTA button hover animations
+    const ctaButtons = document.querySelectorAll('.cta-primary, .cta-secondary');
+    
+    ctaButtons.forEach((button: Element) => {
+      const buttonElement = button as HTMLElement;
+      
+      buttonElement.addEventListener('mouseenter', () => {
+        gsap.to(buttonElement, {
+          duration: 0.3,
+          scale: 1.05,
+          y: -2,
+          boxShadow: buttonElement.classList.contains('cta-primary') 
+            ? '0 10px 30px rgba(0, 255, 213, 0.4)' 
+            : '0 10px 30px rgba(255, 0, 170, 0.4)',
+          ease: 'power2.out'
+        });
+        
+        // Animate the inner span
+        const span = buttonElement.querySelector('span');
+        if (span) {
+          gsap.to(span, {
+            duration: 0.2,
+            y: -1,
+            ease: 'power2.out'
+          });
+        }
+      });
+      
+      buttonElement.addEventListener('mouseleave', () => {
+        gsap.to(buttonElement, {
+          duration: 0.3,
+          scale: 1,
+          y: 0,
+          boxShadow: '0 0 0 rgba(0, 0, 0, 0)',
+          ease: 'power2.out'
+        });
+        
+        // Reset the inner span
+        const span = buttonElement.querySelector('span');
+        if (span) {
+          gsap.to(span, {
+            duration: 0.2,
+            y: 0,
+            ease: 'power2.out'
+          });
+        }
+      });
+    });
+
+    // Scroll indicator pulse animation
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    if (scrollIndicator) {
+      gsap.to(scrollIndicator, {
+        duration: 2,
+        y: 5,
+        repeat: -1,
+        yoyo: true,
+        ease: 'power2.inOut'
+      });
+    }
+  }
+
+  // Smooth scroll for CTA buttons
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e: Event) {
+      e.preventDefault();
+      const element = e.currentTarget as HTMLAnchorElement;
+      const href = element.getAttribute('href');
+      if (href) {
+        const target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }
+    });
+  });
+</script>

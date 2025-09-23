@@ -1,4 +1,6 @@
 ---
+import '../styles/global.css';
+
 export interface Props {
   title?: string;
   description?: string;
@@ -51,9 +53,6 @@ const ogImage = Astro.site ? new URL(image, Astro.site).toString() : image;
 		<!-- Preconnect to font origins -->
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		
-		<!-- Import global styles -->
-		<link rel="stylesheet" href="/src/styles/global.css">
 		
 		<!-- JSON-LD Schema -->
 		<script type="application/ld+json">

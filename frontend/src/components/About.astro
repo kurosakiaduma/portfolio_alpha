@@ -1,0 +1,67 @@
+---
+// About.astro - About section with bio and personal info
+import Model3D from './Model3D.tsx';
+---
+
+<div class="max-w-6xl mx-auto px-6">
+  <div class="text-center mb-16">
+    <h2 class="font-pixel text-3xl md:text-5xl text-retro-cyan retro-glow-cyan mb-4">
+      About Me
+    </h2>
+    <p class="text-text-secondary text-lg max-w-2xl mx-auto">
+      Passionate full-stack developer with a love for creating digital experiences that matter.
+    </p>
+  </div>
+  
+  <div class="grid lg:grid-cols-2 gap-12 items-center">
+    <!-- Bio Content -->
+    <div class="space-y-6">
+      <div class="space-y-4">
+        <h3 class="font-mono text-xl text-retro-magenta retro-glow-magenta">
+          Hello, I'm Tevin
+        </h3>
+        <p class="text-text-secondary leading-relaxed">
+          I'm a full-stack developer specializing in modern web technologies with a passion for creating 
+          pixel-perfect, performant applications. My journey in tech spans several years, during which 
+          I've worked with various technologies and frameworks to bring ideas to life.
+        </p>
+        <p class="text-text-secondary leading-relaxed">
+          When I'm not coding, you'll find me exploring new technologies, contributing to open-source 
+          projects, or diving deep into the latest trends in web development and design.
+        </p>
+      </div>
+      
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-2 gap-4 pt-6 border-t border-retro-cyan/20">
+        <div class="text-center">
+          <div class="font-pixel text-2xl text-retro-lime retro-glow-lime">3+</div>
+          <div class="font-mono text-sm text-text-muted">Years Experience</div>
+        </div>
+        <div class="text-center">
+          <div class="font-pixel text-2xl text-retro-amber retro-glow-amber">50+</div>
+          <div class="font-mono text-sm text-text-muted">Projects Completed</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Avatar/Image placeholder -->
+    <div class="flex justify-center lg:justify-end">
+      <div class="relative">
+        <div class="about-model-container w-80 h-80 sm:w-96 sm:h-96 bg-gradient-to-br from-retro-cyan/20 to-retro-magenta/20 rounded-lg border-2 border-retro-cyan/30 flex items-center justify-center relative">
+          <Model3D 
+            modelPath="/t-pose_model.glb"
+            key="about-model"
+            size={{ width: 400, height: 400 }}
+            cameraPosition={[0, 0.5, 2.5]}
+            autoRotate={false}
+            client:load
+            containerClass="absolute inset-0"
+          />
+        </div>
+        <!-- Decorative elements -->
+        <div class="absolute -top-4 -right-4 w-8 h-8 border-2 border-retro-magenta animate-pulse"></div>
+        <div class="absolute -bottom-4 -left-4 w-6 h-6 border-2 border-retro-lime animate-pulse delay-300"></div>
+      </div>
+    </div>
+  </div>
+</div>

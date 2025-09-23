@@ -1,0 +1,513 @@
+---
+import SOCIALS from '../lib/socials';
+const socials = SOCIALS as { id: string; href: string; label: string }[];
+import Icon from './Icon.astro';
+---
+
+<nav class="nav-container fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+  <div class="nav-content max-w-7xl mx-auto px-6 py-4">
+    <div class="nav-wrapper flex items-center justify-between">
+      <!-- Logo/Brand -->
+      <div class="nav-brand">
+        <a href="#hero" class="brand-link font-pixel text-xl text-retro-cyan retro-glow-cyan hover:text-retro-magenta transition-colors duration-300">
+          <svg class="inline-block w-8 h-8 mr-2 icon-center" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="devLogoTitle">
+            <title id="devLogoTitle">Developer logo</title>
+            <defs>
+              <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0" stop-color="#00ffd5"/>
+                <stop offset="1" stop-color="#ff00aa"/>
+              </linearGradient>
+            </defs>
+
+            <!-- rounded terminal / screen -->
+            <rect x="4" y="8" width="56" height="40" rx="6" ry="6" fill="none" stroke="url(#g)" stroke-width="3"/>
+
+            <!-- subtle panel fill -->
+            <rect x="10" y="14" width="44" height="24" rx="3" fill="currentColor" opacity="0.05"/>
+
+            <!-- code chevrons -->
+            <path d="M22 26 L28 20" stroke="url(#g)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M42 20 L36 26" stroke="url(#g)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+            <!-- tiny status dot -->
+            <circle cx="50" cy="14" r="2" fill="url(#g)"/>
+
+            <!-- "apt" label to hint developer/packaging vibe -->
+            <text x="8" y="54" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace" font-size="8" fill="url(#g)">apt</text>
+          </svg>
+          <span class="text-retro-magenta font-pixel ml-1">kurosakiaduma</span>
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <div class="nav-menu hidden md:flex items-center space-x-8">
+        <a href="#about" class="nav-link font-mono text-sm uppercase tracking-wider text-text-secondary hover:text-retro-cyan transition-all duration-300 relative">
+          About
+          <span class="nav-underline"></span>
+        </a>
+        <a href="#music" class="nav-link font-mono text-sm uppercase tracking-wider text-text-secondary hover:text-retro-cyan transition-all duration-300 relative">
+          Music
+          <span class="nav-underline"></span>
+        </a>
+        <a href="#contact" class="nav-link font-mono text-sm uppercase tracking-wider text-text-secondary hover:text-retro-cyan transition-all duration-300 relative">
+          Contact
+          <span class="nav-underline"></span>
+        </a>
+      </div>
+
+      <!-- Social Media Links -->
+      <div class="social-links hidden md:flex items-center space-x-4 ml-6">
+  {socials.map(s => (
+          <a href={s.href} target="_blank" rel="noopener noreferrer" class="social-link text-text-muted hover:text-retro-cyan transition-colors duration-300" aria-label={s.label}>
+            {s.id === 'github' && <Icon id="github" class="w-5 h-5 icon-center" />}
+            {s.id === 'linkedin' && <Icon id="linkedin" class="w-5 h-5 icon-center" />}
+            {s.id === 'x' && <Icon id="x" class="w-5 h-5 icon-center" />}
+            {s.id === 'instagram' && <Icon id="instagram" class="w-5 h-5 icon-center" />}
+            {s.id === 'medium' && <Icon id="medium" class="w-5 h-5 icon-center" />}
+            {s.id === 'email' && <Icon id="email" class="w-5 h-5 icon-center" />}
+          </a>
+        ))}
+      </div>
+
+      <!-- Status panel: clock, location, weather -->
+      <div class="status-panel hidden md:flex items-center space-x-6 ml-6 font-mono text-sm text-text-muted">
+        <div class="status-clock flex flex-col items-center">
+          <div class="clock-display text-retro-cyan font-pixel text-lg">--:--</div>
+        </div>
+        <div class="status-location flex flex-col items-start">
+          <div class="location-city text-text-primary font-mono">Locating...</div>
+          <div class="location-country text-text-muted text-xs">IP: --</div>
+        </div>
+        <div class="status-weather flex flex-col items-start">
+          <div class="weather-temp text-retro-magenta">--°C</div>
+          <div class="weather-desc text-text-muted text-xs">--</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .nav-container {
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 255, 213, 0.1);
+  }
+
+  .nav-container.scrolled {
+    background: rgba(10, 10, 10, 0.95);
+    border-bottom: 1px solid rgba(0, 255, 213, 0.3);
+  }
+
+  .nav-link {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nav-underline {
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(45deg, #00ffd5, #ff00aa);
+    transition: width 0.3s ease;
+  }
+
+  .nav-link:hover .nav-underline {
+    width: 100%;
+  }
+
+  .nav-link.active {
+    color: #00ffd5;
+  }
+
+  .nav-link.active .nav-underline {
+    width: 100%;
+  }
+
+  .nav-cta {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nav-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #ff00aa, #00ffd5);
+    transition: left 0.3s ease;
+    z-index: -1;
+  }
+
+  .nav-cta:hover::before {
+    left: 0;
+  }
+
+  .nav-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    cursor: pointer;
+  }
+
+  .hamburger-line {
+    width: 100%;
+    height: 2px;
+    background: #00ffd5;
+    transition: all 0.3s ease;
+    transform-origin: center;
+  }
+
+  .nav-toggle.active .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .nav-toggle.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+
+  .nav-toggle.active .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+  }
+
+  .mobile-menu.active {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .mobile-nav-link {
+    display: block;
+    position: relative;
+    padding: 8px 0;
+  }
+
+  .mobile-nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #00ffd5;
+    transition: width 0.3s ease;
+  }
+
+  .mobile-nav-link:hover::after {
+    width: 100%;
+  }
+
+  /* Status panel styles */
+  .status-panel .clock-display {
+    font-family: 'Press Start 2P', monospace;
+    letter-spacing: 1px;
+  }
+
+  .status-panel .location-city {
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  .status-panel .weather-temp {
+    font-weight: 700;
+    color: #ff77cc;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .nav-container,
+    .nav-underline,
+    .nav-cta::before,
+    .hamburger-line,
+    .mobile-menu,
+    .mobile-nav-link::after {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from '../lib/gsap.ts';
+
+  class Navigation {
+    nav: Element | null;
+    navToggle: Element | null;
+    mobileMenu: Element | null;
+    navLinks: NodeListOf<Element>;
+    sections: NodeListOf<Element>;
+
+    constructor() {
+      this.nav = document.querySelector('.nav-container');
+      this.navToggle = document.querySelector('.nav-toggle');
+      this.mobileMenu = document.querySelector('.mobile-menu');
+      this.navLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
+      this.sections = document.querySelectorAll('section[id]');
+      
+      this.init();
+    }
+
+    init() {
+      this.setupScrollEffects();
+    // mobile menu removed; keep smooth scrolling
+      this.setupSmoothScrolling();
+      this.setupActiveLinks();
+      this.animateNavEntrance();
+      this.setupSocialHoverAnimations();
+    this.setupStatusPanel();
+    }
+
+    setupScrollEffects() {
+      let scrolled = false;
+      
+      window.addEventListener('scroll', () => {
+        const shouldBeScrolled = window.scrollY > 50;
+        
+        if (shouldBeScrolled !== scrolled) {
+          scrolled = shouldBeScrolled;
+          this.nav?.classList.toggle('scrolled', scrolled);
+        }
+      });
+    }
+
+    // removed mobile menu logic (hamburger replaced with status panel)
+
+    // Status panel: clock, IP-based location, weather
+    setupStatusPanel() {
+      const clockEl = document.querySelector('.clock-display');
+      const tzEl = document.querySelector('.clock-sub');
+      const cityEl = document.querySelector('.location-city');
+      const ipEl = document.querySelector('.location-country');
+      const tempEl = document.querySelector('.weather-temp');
+      const descEl = document.querySelector('.weather-desc');
+
+      // Clock animation via GSAP (subtle pulse and second tick)
+      function updateClock() {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        if (clockEl) (clockEl as HTMLElement).textContent = `${hh}:${mm}`;
+      }
+
+      updateClock();
+      setInterval(updateClock, 1000 * 30); // update every 30s
+
+      // GSAP subtle pulse
+      if (clockEl) {
+        gsap.to(clockEl, { duration: 1.6, scale: 1.02, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      }
+
+      // Fetch IP/location
+      (async () => {
+        try {
+          const res = await fetch('https://ipapi.co/json/');
+          if (!res.ok) throw new Error('IP lookup failed');
+          const data = await res.json();
+          if (cityEl) (cityEl as HTMLElement).textContent = `${data.city || data.region || 'Unknown'}`;
+          if (ipEl) (ipEl as HTMLElement).textContent = `IP: ${data.ip || '--'}`;
+
+          // Fetch weather via Open-Meteo using lat/lon if available
+          if (data.latitude && data.longitude) {
+            const lat = data.latitude;
+            const lon = data.longitude;
+            const wres = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=celsius`);
+            if (wres.ok) {
+              const wdata = await wres.json();
+              const cw = wdata.current_weather;
+              if (tempEl && cw && typeof cw.temperature === 'number') (tempEl as HTMLElement).textContent = `${Math.round(cw.temperature)}°C`;
+              if (descEl && cw && typeof cw.weathercode !== 'undefined') {
+                const code = cw.weathercode;
+                const mapping: Record<number, {icon: string, text: string}> = {
+                  0: { icon: '☀️', text: 'Clear' },
+                  1: { icon: '🌤️', text: 'Mainly clear' },
+                  2: { icon: '⛅', text: 'Partly cloudy' },
+                  3: { icon: '☁️', text: 'Overcast' },
+                  45: { icon: '🌫️', text: 'Fog' },
+                  48: { icon: '🌫️', text: 'Depositing rime fog' },
+                  51: { icon: '🌦️', text: 'Light drizzle' },
+                  53: { icon: '🌦️', text: 'Moderate drizzle' },
+                  55: { icon: '🌧️', text: 'Dense drizzle' },
+                  56: { icon: '🌧️', text: 'Freezing drizzle' },
+                  57: { icon: '🌧️', text: 'Heavy freezing drizzle' },
+                  61: { icon: '🌧️', text: 'Slight rain' },
+                  63: { icon: '🌧️', text: 'Moderate rain' },
+                  65: { icon: '🌧️', text: 'Heavy rain' },
+                  66: { icon: '🥶', text: 'Freezing rain' },
+                  67: { icon: '🥶', text: 'Heavy freezing rain' },
+                  71: { icon: '🌨️', text: 'Slight snow' },
+                  73: { icon: '🌨️', text: 'Moderate snow' },
+                  75: { icon: '🌨️', text: 'Heavy snow' },
+                  77: { icon: '🌨️', text: 'Snow grains' },
+                  80: { icon: '🌦️', text: 'Rain showers' },
+                  81: { icon: '🌧️', text: 'Moderate showers' },
+                  82: { icon: '⛈️', text: 'Violent showers' },
+                  85: { icon: '🌨️', text: 'Snow showers' },
+                  86: { icon: '🌨️', text: 'Heavy snow showers' },
+                  95: { icon: '⛈️', text: 'Thunderstorm' },
+                  96: { icon: '⛈️', text: 'Thunderstorm with hail' },
+                  99: { icon: '⛈️', text: 'Severe thunderstorm' }
+                };
+
+                const mapped = mapping[code] || { icon: '❔', text: `Code ${code}` };
+                (descEl as HTMLElement).textContent = `${mapped.icon} ${mapped.text}`;
+              }
+            }
+          }
+        } catch (err) {
+          // Fail silently, show placeholders
+          console.warn('Status panel fetch failed', err);
+        }
+      })();
+    }
+
+    setupSmoothScrolling() {
+      this.navLinks.forEach((link: Element) => {
+        link.addEventListener('click', (e: Event) => {
+          e.preventDefault();
+          const targetId = link.getAttribute('href');
+          const targetSection = document.querySelector(targetId || '');
+          
+          if (targetSection) {
+            const offsetTop = (targetSection as HTMLElement).offsetTop - 80; // Account for fixed nav
+            
+            window.scrollTo({
+              top: offsetTop,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+    }
+
+    setupActiveLinks() {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              // Remove active class from all nav links
+              this.navLinks.forEach((link: Element) => link.classList.remove('active'));
+              
+              // Add active class to corresponding nav link
+              const activeLink = document.querySelector(`.nav-link[href="#${entry.target.id}"], .mobile-nav-link[href="#${entry.target.id}"]`);
+              if (activeLink) {
+                activeLink.classList.add('active');
+              }
+            }
+          });
+        },
+        {
+          rootMargin: '-50% 0px -50% 0px'
+        }
+      );
+
+      this.sections.forEach((section: Element) => {
+        observer.observe(section);
+      });
+    }
+
+    animateNavEntrance() {
+      const navTl = gsap.timeline();
+      
+      navTl
+        .from('.nav-brand', {
+          duration: 0.8,
+          y: -20,
+          opacity: 0,
+          ease: 'power3.out'
+        })
+        .from('.nav-link', {
+          duration: 0.6,
+          y: -20,
+          opacity: 0,
+          stagger: 0.1,
+          ease: 'power2.out'
+        }, '-=0.4')
+        .from('.nav-cta', {
+          duration: 0.6,
+          y: -20,
+          opacity: 0,
+          ease: 'power2.out'
+        }, '-=0.3');
+    }
+
+    setupSocialHoverAnimations() {
+      // Social media link hover animations
+      const socialLinks = document.querySelectorAll('.social-link');
+      
+      socialLinks.forEach((link: Element) => {
+        const linkElement = link as HTMLElement;
+        
+        linkElement.addEventListener('mouseenter', () => {
+          gsap.to(linkElement, {
+            duration: 0.3,
+            scale: 1.2,
+            rotation: 10,
+            y: -2,
+            ease: 'back.out(1.7)'
+          });
+          
+          // Add glow effect
+          const svg = linkElement.querySelector('svg');
+          if (svg) {
+            gsap.to(svg, {
+              duration: 0.3,
+              filter: 'drop-shadow(0 0 8px currentColor)',
+              ease: 'power2.out'
+            });
+          }
+        });
+        
+        linkElement.addEventListener('mouseleave', () => {
+          gsap.to(linkElement, {
+            duration: 0.3,
+            scale: 1,
+            rotation: 0,
+            y: 0,
+            ease: 'power2.out'
+          });
+          
+          // Remove glow effect
+          const svg = linkElement.querySelector('svg');
+          if (svg) {
+            gsap.to(svg, {
+              duration: 0.3,
+              filter: 'drop-shadow(0 0 0px transparent)',
+              ease: 'power2.out'
+            });
+          }
+        });
+      });
+
+      // Nav brand hover animation
+      const navBrand = document.querySelector('.brand-link');
+      if (navBrand) {
+        const brandElement = navBrand as HTMLElement;
+        
+        brandElement.addEventListener('mouseenter', () => {
+          gsap.to(brandElement, {
+            duration: 0.3,
+            scale: 1.1,
+            textShadow: '0 0 20px #00ffd5, 0 0 30px #00ffd5',
+            ease: 'power2.out'
+          });
+        });
+        
+        brandElement.addEventListener('mouseleave', () => {
+          gsap.to(brandElement, {
+            duration: 0.3,
+            scale: 1,
+            textShadow: '0 0 8px rgba(0,255,213,.6), 0 0 16px rgba(0,255,213,.4)',
+            ease: 'power2.out'
+          });
+        });
+      }
+    }
+  }
+
+  // Initialize navigation when DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    new Navigation();
+  });
+</script>

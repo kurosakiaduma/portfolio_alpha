@@ -1,0 +1,63 @@
+# robots.txt for taduma.me
+# Main Portfolio Site
+
+User-agent: *
+
+# Allow main portfolio pages
+Allow: /
+Allow: /_astro/
+
+# Disallow only backend API endpoints
+Disallow: /api/
+
+# Disallow Next.js internals that shouldn't be indexed
+Disallow: /_next/webpack-hmr
+Disallow: /_next/data/
+
+# Block common paths that shouldn't be indexed
+Disallow: /logs/
+Disallow: /*.json$
+Disallow: /*.log$
+
+# Allow all static assets
+Allow: /_next/static/
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.png$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.webp$
+Allow: /*.ico$
+Allow: /*.woff$
+Allow: /*.woff2$
+Allow: /*.ttf$
+
+# Sitemap location
+Sitemap: https://taduma.me/sitemap.xml
+
+# Crawl-delay for polite bots
+Crawl-delay: 1
+
+# Specific rules for common bots
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+
+# Block aggressive or problematic bots
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Crawl-delay: 10
+
+User-agent: GPTBot
+Crawl-delay: 10

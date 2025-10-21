@@ -1,0 +1,51 @@
+# robots.txt for Phylo Application
+# Served at https://taduma.me/phylo/
+
+User-agent: *
+
+# Allow all Phylo pages to be indexed
+Allow: /
+
+# Only block API endpoints
+Disallow: /api/
+Disallow: /phylo/api/
+
+# Block auth endpoints specifically
+Disallow: /phylo/api/auth/
+
+# Block internal Next.js routes
+Disallow: /_next/webpack-hmr
+Disallow: /_next/data/
+
+# Allow Next.js static assets
+Allow: /_next/static/
+
+# Sitemap location (create this in Phylo if you want a dedicated sitemap)
+Sitemap: https://taduma.me/phylo/sitemap.xml
+
+# Crawl-delay for polite bots
+Crawl-delay: 1
+
+# Specific rules for common bots
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /phylo/api/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /phylo/api/
+
+# Block aggressive or problematic bots
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Crawl-delay: 10
+
+User-agent: GPTBot
+Crawl-delay: 10

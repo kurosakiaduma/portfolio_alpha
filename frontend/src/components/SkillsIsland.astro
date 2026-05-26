@@ -1,0 +1,87 @@
+---
+import type { Skill, DegreeData } from "../types/skills";
+
+interface Props {
+  skills?: Skill[];
+  certifications?: Skill[];
+  degree?: DegreeData;
+}
+
+const { skills = [], certifications = [], degree } = Astro.props;
+
+// Combine and sort all items
+const allItems: Skill[] = [
+  ...(degree ? [degree] : []),
+  ...certifications,
+  ...skills,
+].sort((a, b) => a.display_order - b.display_order);
+---
+
+<section class="py-12 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
+  <!-- Bento Grid -->
+  <div class="skills-grid">
+    {allItems.map((item) => {
+      const gridClass = {
+        "1x1": "skill-tile-1x1",
+        "2x1": "skill-tile-2x1",
+        "2x2": "skill-tile-2x2",
+      }[item.grid_size];
+
+      // Degree card (static, no flip without JS)
+      if (item.skill_type === "degree") {
+        return (
+          <div class={`${gridClass} skill-card-perspective`}>
+            <div class="degree-card-container">
+              <div class="degree-card-inner">
+                <div class="degree-card-front">
+                  <img
+                    src={`/icons/skills/${item.icon}`}
+                    alt="Degree"
+                    class="degree-card-icon"
+                  />
+                  <div class="degree-card-title">{item.name}</div>
+                  <div class="text-xs text-cyan-400/60 font-mono">
+                    Hover to reveal
+                  </div>
+                </div>
+                <div class="degree-card-back">
+                  <div class="flex flex-col gap-2 text-center">
+                    <div class="degree-card-title">{item.name}</div>
+                    <div class="degree-card-issuer">{item.issuer}</div>
+                    <div class="degree-card-year">
+                      Graduated {item.year}
+                    </div>
+                    {item.description && (
+                      <div class="degree-card-description">
+                        {item.description}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Regular skill card
+      return (
+        <div class={`${gridClass} skill-card-perspective`}>
+          <div class="skill-card">
+            <div class="flex flex-col items-center justify-center w-full h-full gap-2">
+              <img
+                src={`/icons/skills/${item.icon}`}
+                alt={item.name}
+                class="skill-icon"
+              />
+              <div class="skill-tooltip">{item.name}</div>
+            </div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<style is:global>
+</style>

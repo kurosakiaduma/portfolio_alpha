@@ -1,0 +1,25 @@
+/* Scoped styles for the Admin CMS */
+.admin-theme {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Reset some generic body backgrounds strictly for the admin area */
+body:has(#admin-root) {
+  background-color: #020617; /* tailwind slate-950 */
+}
+
+/* Scrollbar explicitly for admin panels */
+.admin-theme ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.admin-theme ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.admin-theme ::-webkit-scrollbar-thumb {
+  background: #334155; /* tailwind slate-700 */
+  border-radius: 4px;
+}
+.admin-theme ::-webkit-scrollbar-thumb:hover {
+  background: #475569; /* tailwind slate-600 */
+}

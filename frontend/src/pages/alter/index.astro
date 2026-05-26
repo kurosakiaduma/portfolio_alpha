@@ -1,0 +1,9 @@
+---
+import AdminLayout from '../../layouts/Layout.astro';
+import AdminApp from '../../components/admin/AdminApp';
+---
+
+<AdminLayout title="Portfolio Admin — Alter">
+  <!-- React router SPA container — auth is handled client-side in AdminApp -->
+  <AdminApp client:only="react" />
+</AdminLayout>

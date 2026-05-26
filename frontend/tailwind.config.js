@@ -59,6 +59,8 @@ export default {
         'glow': 'glow 2s ease-in-out infinite alternate',
         'flicker': 'flicker 0.15s infinite linear',
         'scan': 'scan 2s linear infinite',
+        "flip-x": "flipX 0.6s ease-in-out",
+        "color-burst": "colorBurst 0.4s ease-out",
       },
       keyframes: {
         glow: {
@@ -82,6 +84,14 @@ export default {
         scan: {
           '0%': { transform: 'translateY(-100%)' },
           '100%': { transform: 'translateY(100vh)' },
+        },
+        flipX: {
+          "0%": { transform: "rotateY(0deg)" },
+          "100%": { transform: "rotateY(180deg)" },
+        },
+        colorBurst: {
+          "0%": { filter: "grayscale(1) opacity(0.75)" },
+          "100%": { filter: "grayscale(0) opacity(1)" },
         },
       },
       backdropBlur: {

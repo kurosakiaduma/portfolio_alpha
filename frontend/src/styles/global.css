@@ -3,7 +3,23 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
+/* TailwindCSS Directives */
 @import "tailwindcss";
+
+/* TailwindCSS config import */
+@config "../../tailwind.config.js";
+
+/* Animated border – CSS Houdini custom property for animatable angle */
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes spin-border {
+  from { --angle: 0deg; }
+  to   { --angle: 360deg; }
+}
 
 /* Base styles */
 * {
@@ -165,4 +181,307 @@ body {
 .icon-center.w-4,
 .icon-center.w-5 {
   transform: translateY(-1px);
+}
+
+/* ============================================================================
+   SKILLS ISLAND BENTO BOX STYLES
+   ============================================================================ */
+
+/* Perspective for 3D flip effect */
+.skill-card-perspective {
+  perspective: 1000px;
+}
+
+/* Skill card container with entrance animation */
+.skill-card {
+  @apply relative w-full h-full rounded-lg transition-all duration-300;
+  transform-style: preserve-3d;
+}
+
+/* Default state: grayscale, muted color */
+.skill-card {
+  @apply bg-gradient-to-br from-slate-700 to-slate-800;
+  filter: grayscale(1) opacity(0.75);
+}
+
+/* Ensure card content sits above the animated pseudo-element borders */
+.skill-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Animated gradient border (shared pseudo-element base) ---- */
+.skill-card::after,
+.skill-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--angle),
+    #00ffd5,
+    #ff00aa,
+    #9333ea,
+    #006aff,
+    #00ffd5
+  );
+  animation: spin-border 4s linear infinite;
+  animation-play-state: paused;
+}
+
+/* Sharp border ring via mask-composite */
+.skill-card::after {
+  padding: 2px;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+/* Only spin on hover – avoids constant GPU work on every card */
+.skill-card:hover::after,
+.skill-card:hover::before,
+.skill-card.active::after,
+.skill-card.active::before {
+  animation-play-state: running;
+}
+
+/* Soft glow behind the card */
+.skill-card::before {
+  inset: -4px;
+  filter: blur(1rem);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.skill-card:hover::before,
+.skill-card.active::before {
+  opacity: 0.5;
+}
+
+/* Hover: color burst, elevation */
+.skill-card:hover,
+.skill-card.active {
+  filter: grayscale(0) opacity(1);
+  transform: translateY(-4px);
+}
+
+/* Icon styling within skill card */
+.skill-icon {
+  @apply w-14 h-14 mx-auto;
+  filter: drop-shadow(0 0 8px rgba(147, 51, 234, 0.4));
+}
+
+/* Tooltip on hover */
+.skill-tooltip {
+  @apply absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full mt-2
+    bg-slate-900 text-cyan-300 px-3 py-1 rounded text-xs font-mono whitespace-nowrap
+    opacity-0 pointer-events-none transition-opacity duration-200;
+}
+
+.skill-card:hover .skill-tooltip,
+.skill-card.active .skill-tooltip {
+  @apply opacity-100;
+}
+
+/* ============================================================================
+   DEGREE CARD - PREMIUM TRADING CARD FLIP
+   ============================================================================ */
+
+/* 3D flip container */
+.degree-card-container {
+  @apply relative w-full h-full;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+/* The actual flipper element */
+.degree-card-inner {
+  @apply relative w-full h-full transition-transform duration-500;
+  transform-style: preserve-3d;
+}
+
+/* Set initial rotation state */
+.degree-card-container:hover .degree-card-inner,
+.degree-card-container.flipped .degree-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Front face */
+.degree-card-front {
+  @apply absolute w-full h-full flex flex-col items-center justify-center
+    rounded-xl bg-gradient-to-br from-purple-900 via-slate-800 to-slate-900
+    border-2 border-cyan-400/40 p-4;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 
+    0 0 40px rgba(0, 255, 213, 0.2),
+    0 0 80px rgba(147, 51, 234, 0.15),
+    inset 0 0 40px rgba(147, 51, 234, 0.1);
+}
+
+/* Back face */
+.degree-card-back {
+  @apply absolute w-full h-full flex flex-col items-center justify-center
+    rounded-xl bg-gradient-to-br from-cyan-900 via-slate-800 to-slate-900
+    border-2 border-purple-400/40 p-4;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(180deg);
+  box-shadow: 
+    0 0 40px rgba(147, 51, 234, 0.2),
+    0 0 80px rgba(0, 255, 213, 0.15),
+    inset 0 0 40px rgba(0, 255, 213, 0.1);
+}
+
+/* Degree card content */
+.degree-card-icon {
+  @apply w-20 h-20 mb-3 filter drop-shadow-lg;
+}
+
+.degree-card-title {
+  @apply text-lg font-bold text-center text-cyan-300 font-mono mb-1;
+  text-shadow: 0 0 12px rgba(0, 255, 213, 0.6);
+}
+
+.degree-card-issuer {
+  @apply text-sm text-purple-300 text-center font-mono;
+  text-shadow: 0 0 8px rgba(147, 51, 234, 0.4);
+}
+
+.degree-card-year {
+  @apply text-xs text-slate-400 text-center mt-2 font-mono;
+}
+
+.degree-card-description {
+  @apply text-xs text-slate-300 text-center mt-3 leading-relaxed;
+}
+
+/* ============================================================================
+   BENTO GRID LAYOUT
+   ============================================================================ */
+
+.skills-grid {
+  @apply grid gap-4 w-full;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  grid-auto-rows: 100px;
+}
+
+/* Responsive grid sizes */
+@media (min-width: 640px) {
+  .skills-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 100px;
+  }
+}
+
+@media (min-width: 768px) {
+  .skills-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .skills-grid {
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 100px;
+  }
+}
+
+/* Tile size modifiers */
+.skill-tile-1x1 {
+  @apply col-span-1 row-span-1;
+}
+
+.skill-tile-2x1 {
+  @apply col-span-2 row-span-1;
+}
+
+.skill-tile-2x2 {
+  @apply col-span-2 row-span-2;
+}
+
+/* Adjust for mobile responsiveness */
+@media (max-width: 639px) {
+  .skill-tile-2x1,
+  .skill-tile-2x2 {
+    @apply col-span-1 row-span-1;
+  }
+}
+
+/* ============================================================================
+   FILTER PILLS
+   ============================================================================ */
+
+.filter-pills {
+  @apply flex gap-2 mb-6 flex-wrap;
+}
+
+.filter-pill {
+  @apply px-3 py-1 rounded-full text-xs font-mono border border-slate-600/50
+    text-slate-400 bg-slate-800/40 cursor-pointer transition-all duration-200
+    hover:border-cyan-400/50 hover:text-cyan-300;
+}
+
+.filter-pill.active {
+  @apply border-cyan-400 text-cyan-300 bg-slate-800/80;
+  box-shadow: 0 0 12px rgba(0, 255, 213, 0.3);
+}
+
+/* ============================================================================
+   DIMMED STATE (WHEN FILTER IS ACTIVE)
+   ============================================================================ */
+
+.skill-dimmed {
+  @apply opacity-20;
+  filter: grayscale(1) opacity(0.2);
+}
+
+.skill-dimmed:hover {
+  @apply opacity-20;
+  filter: grayscale(1) opacity(0.2);
+  transform: none;
+  box-shadow: none;
+}
+
+/* ============================================================================
+   REDUCED MOTION FALLBACK
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-card,
+  .degree-card-inner,
+  .skill-tooltip {
+    @apply transition-none;
+  }
+
+  .skill-card::after,
+  .skill-card::before {
+    animation: none;
+  }
+
+  .skill-card:hover {
+    transform: none;
+  }
+
+  .degree-card-container:hover .degree-card-inner,
+  .degree-card-container.flipped .degree-card-inner {
+    transform: none;
+  }
+
+  /* Show text overlay instead of flip on reduced-motion */
+  .degree-card-back {
+    @apply flex opacity-100 absolute;
+    transform: rotateY(0deg);
+  }
+
+  .degree-card-back {
+    position: static;
+    transform: rotateY(0deg);
+  }
 }

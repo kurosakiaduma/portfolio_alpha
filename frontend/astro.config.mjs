@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://taduma.me',
   integrations: [
-    react(), 
+    react(),
     //tailwind()//
   ],
 
@@ -14,5 +14,13 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://127.0.0.1:6543',
+          changeOrigin: true
+        }
+      }
+    }
   },
 });

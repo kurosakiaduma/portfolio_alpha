@@ -4,10 +4,10 @@ import RetroBackground from '../components/RetroBackground.astro';
 import Nav from '../components/Nav.astro';
 import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
-// import ProjectsIsland from '../components/ProjectsIsland.tsx';
-// import SkillsIsland from '../components/SkillsIsland.tsx';
-// import GalleryIsland from '../components/GalleryIsland.tsx';
-// import MusicIsland from '../components/MusicIsland.tsx';
+import SkillsIsland from '../components/SkillsIsland.tsx';
+import ProjectsIsland from '../components/ProjectsIsland.tsx';
+import MusicIsland from '../components/MusicIsland.tsx';
+import BlogIsland from '../components/BlogIsland.tsx';
 import Footer from '../components/Footer.astro';
 import SOCIALS from '../lib/socials';
 const socials = SOCIALS as { id: string; href: string; label: string }[];
@@ -41,10 +41,7 @@ const socials = SOCIALS as { id: string; href: string; label: string }[];
 						A collection of projects showcasing modern web technologies, creative problem-solving, and innovative design solutions.
 					</p>
 				</div>
-				<!-- <ProjectsIsland client:load /> -->
-				<div class="text-center text-text-muted font-mono">
-					Projects component coming soon...
-				</div>
+				<ProjectsIsland client:load />
 			</div>
 		</section>
 		
@@ -59,28 +56,22 @@ const socials = SOCIALS as { id: string; href: string; label: string }[];
 						Technologies, frameworks, and tools I use to bring ideas to life and create exceptional digital experiences.
 					</p>
 				</div>
-				<!-- <SkillsIsland client:load /> -->
-				<div class="text-center text-text-muted font-mono">
-					Skills component coming soon...
-				</div>
+				<SkillsIsland client:load />
 			</div>
 		</section>
 		
-		<!-- Gallery Section -->
-		<section id="gallery" class="py-20 relative">
+		<!-- Blog Section -->
+		<section id="blog" class="py-20 relative">
 			<div class="max-w-7xl mx-auto px-6">
 				<div class="text-center mb-16">
 					<h2 class="font-pixel text-3xl md:text-5xl text-retro-amber retro-glow-amber mb-4">
-						Gallery
+						Blog
 					</h2>
 					<p class="text-text-secondary text-lg max-w-2xl mx-auto">
-						Visual highlights, design experiments, and creative explorations that capture the essence of digital artistry.
+						Curated articles, posts, and writing — both my own and from around the web.
 					</p>
 				</div>
-				<!-- <GalleryIsland client:load /> -->
-				<div class="text-center text-text-muted font-mono">
-					Gallery component coming soon...
-				</div>
+				<BlogIsland client:load />
 			</div>
 		</section>
 		
@@ -95,10 +86,7 @@ const socials = SOCIALS as { id: string; href: string; label: string }[];
 						Currently listening to and recent tracks that fuel creativity and inspire innovative solutions.
 					</p>
 				</div>
-				<!-- <MusicIsland client:load /> -->
-				<div class="text-center text-text-muted font-mono">
-					Music component coming soon...
-				</div>
+				<MusicIsland client:load />
 			</div>
 		</section>
 		

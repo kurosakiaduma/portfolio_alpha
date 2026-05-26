@@ -1,0 +1,13 @@
+[project]
+name = "backend"
+version = "0.1.0"
+authors = [
+    { name = "Tevin Aduma", email = "tevin74@live.com" },
+]
+description = "Backend core API service"
+readme = "README.md"
+requires-python = ">=3.13"
+[tool.setuptools]
+package-dir = {""= "."}
+packages = ["agents", "core", "db", "knowledge", "mcp", "models", "routers", "scripts",]
+

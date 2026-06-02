@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { adminCreateProject, adminUpdateProject, adminFetchFromGitHub } from '../../../lib/adminApi';
 import type { Project } from '../../../types/projects';
 import { Save, X, SquareCode, Loader2 } from 'lucide-react';
+import { TechTagInput } from './TechTagInput';
+import { CoverImageInput } from './CoverImageInput';
+import { AdminImageGallery } from './AdminImageGallery';
 
 interface ProjectFormProps {
     project: Project | null;
@@ -57,8 +60,7 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
         }));
     };
 
-    const handleTechChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
+    const handleTechChange = (tags: string[]) => {
         setFormData(prev => ({ ...prev, tech: tags }));
     };
 
@@ -162,12 +164,11 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                     </div>
 
                     <div className="space-y-2 col-span-2">
-                        <label className="text-sm font-medium text-slate-300">Tech Tags (comma-separated)</label>
-                        <input
-                            value={formData.tech.join(', ')}
+                        <label className="text-sm font-medium text-slate-300">Tech Tags</label>
+                        <TechTagInput
+                            tags={formData.tech}
                             onChange={handleTechChange}
                             placeholder="React, TypeScript, FastAPI"
-                            className={inputClass}
                         />
                     </div>
 
@@ -182,8 +183,19 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                     </div>
 
                     <div className="space-y-2 col-span-2">
-                        <label className="text-sm font-medium text-slate-300">Cover Image URL</label>
-                        <input name="cover_image" value={formData.cover_image || ''} onChange={handleChange} placeholder="https://..." className={inputClass} />
+                        <label className="text-sm font-medium text-slate-300">Cover Image</label>
+                        <CoverImageInput
+                            value={formData.cover_image || ''}
+                            onChange={url => setFormData(prev => ({ ...prev, cover_image: url }))}
+                        />
+                    </div>
+
+                    <div className="space-y-2 col-span-2">
+                        <label className="text-sm font-medium text-slate-300">Additional Images</label>
+                        <AdminImageGallery
+                            images={formData.images || []}
+                            onChange={images => setFormData(prev => ({ ...prev, images }))}
+                        />
                     </div>
 
                     <div className="space-y-2 col-span-2 sm:col-span-1">

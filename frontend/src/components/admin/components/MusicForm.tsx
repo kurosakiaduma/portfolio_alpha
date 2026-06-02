@@ -1,7 +1,17 @@
-import { useState, useRef } from 'react';
-import { adminCreateMusic, adminUpdateMusic, adminUploadAudio } from '../../../lib/adminApi';
+import { useState } from 'react';
+import { adminCreateMusic, adminUpdateMusic } from '../../../lib/adminApi';
+import { extractYouTubeId } from '../../../lib/youtube';
 import type { MusicEntry } from '../../../types/music';
-import { Save, X, Upload } from 'lucide-react';
+import { Save, X } from 'lucide-react';
+
+function YoutubeIcon({ size = 15, className = '' }: { size?: number; className?: string }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24"
+            fill="currentColor" className={className}>
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+    );
+}
 
 interface MusicFormProps {
     entry: MusicEntry | null;
@@ -13,14 +23,20 @@ export function MusicForm({ entry, onSave, onCancel }: MusicFormProps) {
     const isEditing = !!entry;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [uploading, setUploading] = useState(false);
-    const audioInputRef = useRef<HTMLInputElement>(null);
+
+    // Derive the initial YouTube URL from existing youtube_video_id if editing
+    const initialYouTubeUrl = entry?.youtube_video_id
+        ? `https://www.youtube.com/watch?v=${entry.youtube_video_id}`
+        : '';
+
+    const [youtubeUrl, setYoutubeUrl] = useState(initialYouTubeUrl);
+    const [youtubeError, setYoutubeError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState<Omit<MusicEntry, 'id'>>({
         title: entry?.title || '',
         artist: entry?.artist || '',
         artwork_url: entry?.artwork_url || '',
-        audio_url: entry?.audio_url || '',
+        youtube_video_id: entry?.youtube_video_id || undefined,
         source_platform: entry?.source_platform || 'manual',
         source_url: entry?.source_url || '',
         playable: entry?.playable || false,
@@ -31,40 +47,53 @@ export function MusicForm({ entry, onSave, onCancel }: MusicFormProps) {
         const { name, value, type } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked :
-                type === 'number' ? parseInt(value) || 0 : value
+            [name]: type === 'number' ? parseInt(value) || 0 : value,
         }));
     };
 
-    const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        setUploading(true);
-        setError(null);
-        try {
-            const result = await adminUploadAudio(file);
-            setFormData(prev => ({ ...prev, audio_url: result.url }));
-            if (audioInputRef.current) audioInputRef.current.value = '';
-        } catch (err: any) {
-            setError(err.message || 'Failed to upload audio');
-        } finally {
-            setUploading(false);
+    const handleYouTubeUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const url = e.target.value;
+        setYoutubeUrl(url);
+        setYoutubeError(null);
+
+        if (!url.trim()) {
+            // Cleared — remove the video ID
+            setFormData(prev => ({ ...prev, youtube_video_id: undefined, playable: false }));
+            return;
+        }
+
+        const id = extractYouTubeId(url);
+        if (id) {
+            setFormData(prev => ({ ...prev, youtube_video_id: id, playable: true }));
+        } else {
+            setYoutubeError('Could not extract a YouTube video ID from this URL.');
+            setFormData(prev => ({ ...prev, youtube_video_id: undefined, playable: false }));
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (formData.playable && !formData.audio_url) {
-            setError('An audio file URL is required when playable is enabled.');
+
+        // Block submission if a YouTube URL is entered but invalid
+        if (youtubeUrl.trim() && !formData.youtube_video_id) {
+            setYoutubeError('Could not extract a YouTube video ID from this URL. Please correct or clear it.');
             return;
         }
+
         setLoading(true);
         setError(null);
         try {
+            // Never send audio_url; playable is derived server-side from youtube_video_id
+            const payload: Omit<MusicEntry, 'id'> = {
+                ...formData,
+                audio_url: undefined,
+                playable: !!formData.youtube_video_id,
+            };
+
             if (isEditing && entry.id) {
-                await adminUpdateMusic(entry.id, formData);
+                await adminUpdateMusic(entry.id, payload);
             } else {
-                await adminCreateMusic(formData);
+                await adminCreateMusic(payload);
             }
             onSave();
         } catch (err: any) {
@@ -101,7 +130,37 @@ export function MusicForm({ entry, onSave, onCancel }: MusicFormProps) {
 
                     <div className="space-y-2 col-span-2">
                         <label className="text-sm font-medium text-slate-300">Artwork URL</label>
-                        <input name="artwork_url" value={formData.artwork_url || ''} onChange={handleChange} placeholder="https://..." className={inputClass} />
+                        <input
+                            name="artwork_url"
+                            value={formData.artwork_url || ''}
+                            onChange={handleChange}
+                            placeholder="https://..."
+                            className={inputClass}
+                        />
+                    </div>
+
+                    {/* YouTube URL — sole playback source */}
+                    <div className="col-span-2 space-y-2">
+                        <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
+                            <YoutubeIcon size={15} className="text-red-400" />
+                            YouTube URL
+                            <span className="text-slate-500 font-normal text-xs">(enables playback)</span>
+                        </label>
+                        <input
+                            type="url"
+                            value={youtubeUrl}
+                            onChange={handleYouTubeUrlChange}
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            className={inputClass + (youtubeError ? ' border-red-500 focus:border-red-500 focus:ring-red-500' : '')}
+                        />
+                        {youtubeError && (
+                            <p className="text-red-400 text-xs">{youtubeError}</p>
+                        )}
+                        {formData.youtube_video_id && (
+                            <p className="text-green-400 text-xs">
+                                Video ID: <span className="font-mono">{formData.youtube_video_id}</span>
+                            </p>
+                        )}
                     </div>
 
                     <div className="space-y-2 col-span-2 sm:col-span-1">
@@ -116,69 +175,24 @@ export function MusicForm({ entry, onSave, onCancel }: MusicFormProps) {
                     </div>
 
                     <div className="space-y-2 col-span-2 sm:col-span-1">
-                        <label className="text-sm font-medium text-slate-300">Source URL</label>
-                        <input type="url" name="source_url" value={formData.source_url || ''} onChange={handleChange} placeholder="https://..." className={inputClass} />
+                        <label className="text-sm font-medium text-slate-300">
+                            Source URL
+                            <span className="text-slate-500 font-normal text-xs ml-1">(Spotify/SoundCloud reference link)</span>
+                        </label>
+                        <input
+                            type="url"
+                            name="source_url"
+                            value={formData.source_url || ''}
+                            onChange={handleChange}
+                            placeholder="https://..."
+                            className={inputClass}
+                        />
                     </div>
 
                     <div className="space-y-2 col-span-2 sm:col-span-1">
                         <label className="text-sm font-medium text-slate-300">Display Order</label>
                         <input type="number" name="display_order" value={formData.display_order} onChange={handleChange} className={inputClass} />
                     </div>
-
-                    {/* Playable toggle */}
-                    <div className="col-span-2 pt-2">
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                name="playable"
-                                checked={formData.playable}
-                                onChange={handleChange}
-                                className="w-4 h-4 rounded border-slate-600 bg-slate-950 text-cyan-500 focus:ring-cyan-500 focus:ring-2"
-                            />
-                            <span className="text-sm text-slate-300 group-hover:text-white transition-colors">
-                                Playable (non-copyrighted track with audio file)
-                            </span>
-                        </label>
-                    </div>
-
-                    {/* Audio section — shown when playable */}
-                    {formData.playable && (
-                        <div className="col-span-2 space-y-3 p-4 bg-slate-800/30 border border-slate-700 rounded-lg">
-                            <p className="text-sm font-medium text-slate-300">Audio File <span className="text-red-400">*</span></p>
-
-                            <div className="flex gap-2">
-                                <input
-                                    name="audio_url"
-                                    value={formData.audio_url || ''}
-                                    onChange={handleChange}
-                                    placeholder="/audio/track.mp3 or https://..."
-                                    className={inputClass + " flex-1"}
-                                />
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <input
-                                    ref={audioInputRef}
-                                    type="file"
-                                    accept="audio/*"
-                                    onChange={handleAudioUpload}
-                                    disabled={uploading}
-                                    className="hidden"
-                                    id="audio-upload"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => audioInputRef.current?.click()}
-                                    disabled={uploading}
-                                    className="flex items-center gap-2 px-3 py-2 bg-slate-950 border border-slate-700 hover:border-cyan-500 rounded-md text-slate-300 hover:text-slate-100 transition-colors disabled:opacity-50 text-sm"
-                                >
-                                    <Upload size={15} />
-                                    {uploading ? 'Uploading...' : 'Upload Audio File'}
-                                </button>
-                                <span className="text-xs text-slate-500">or paste a URL above</span>
-                            </div>
-                        </div>
-                    )}
                 </div>
 
                 <div className="pt-6 mt-6 border-t border-slate-800 flex justify-end gap-3">

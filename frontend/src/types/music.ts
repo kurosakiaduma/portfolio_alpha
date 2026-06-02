@@ -4,6 +4,7 @@ export interface MusicEntry {
   artist: string;
   artwork_url?: string;
   audio_url?: string;
+  youtube_video_id?: string;
   source_platform: 'spotify' | 'soundcloud' | 'youtube' | 'lastfm' | 'manual';
   source_url?: string;
   playable: boolean;

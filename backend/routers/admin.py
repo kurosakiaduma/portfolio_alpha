@@ -341,6 +341,54 @@ async def admin_list_projects(current_user: Dict[str, Any] = Depends(get_current
     return docs
 
 
+@router.post("/projects/github-fetch", response_model=Dict[str, Any])
+async def admin_github_fetch(
+    body: GitHubFetchRequest,
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+):
+    """Fetch project metadata from the GitHub API and return pre-populated fields."""
+    if body.repo_url:
+        path = body.repo_url.rstrip("/").removeprefix("https://github.com/").removeprefix("http://github.com/")
+        parts = path.split("/")
+        if len(parts) < 2:
+            raise HTTPException(status_code=400, detail="Invalid repo_url format")
+        owner, repo_name = parts[0], parts[1]
+    elif body.username and body.repo:
+        owner, repo_name = body.username, body.repo
+    else:
+        raise HTTPException(status_code=400, detail="Provide repo_url or username+repo")
+
+    github_token = os.getenv("GITHUB_TOKEN")
+    gh_headers = {"Accept": "application/vnd.github+json"}
+    if github_token:
+        gh_headers["Authorization"] = f"Bearer {github_token}"
+
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(
+                f"https://api.github.com/repos/{owner}/{repo_name}",
+                headers=gh_headers,
+            )
+    except Exception as exc:
+        logger.error("GitHub API request failed: %s", exc)
+        raise HTTPException(status_code=502, detail="Failed to reach GitHub API")
+
+    if resp.status_code == 404:
+        raise HTTPException(status_code=404, detail="GitHub repository not found")
+    if resp.status_code != 200:
+        raise HTTPException(status_code=502, detail=f"GitHub API returned {resp.status_code}")
+
+    data = resp.json()
+    return {
+        "title": data.get("name", ""),
+        "description": data.get("description") or "",
+        "short_description": (data.get("description") or "")[:120],
+        "github_url": data.get("html_url", ""),
+        "tech": [data["language"]] if data.get("language") else [],
+        "source": "github",
+    }
+
+
 @router.post("/projects", response_model=Dict[str, Any], status_code=status.HTTP_201_CREATED)
 async def admin_create_project(project: Project, current_user: Dict[str, Any] = Depends(get_current_admin)):
     """Create a new project, generating a unique slug from the title."""
@@ -377,61 +425,48 @@ async def admin_delete_project(
     return None
 
 
-@router.post("/projects/github-fetch", response_model=Dict[str, Any])
-async def admin_github_fetch(
-    body: GitHubFetchRequest,
-    current_user: Dict[str, Any] = Depends(get_current_admin),
-):
-    """Fetch project metadata from the GitHub API and return pre-populated fields."""
-    # Resolve owner/repo from either repo_url or username+repo
-    if body.repo_url:
-        # Accept https://github.com/owner/repo or owner/repo
-        path = body.repo_url.rstrip("/").removeprefix("https://github.com/").removeprefix("http://github.com/")
-        parts = path.split("/")
-        if len(parts) < 2:
-            raise HTTPException(status_code=400, detail="Invalid repo_url format")
-        owner, repo_name = parts[0], parts[1]
-    elif body.username and body.repo:
-        owner, repo_name = body.username, body.repo
-    else:
-        raise HTTPException(status_code=400, detail="Provide repo_url or username+repo")
-
-    github_token = os.getenv("GITHUB_TOKEN")
-    headers = {"Accept": "application/vnd.github+json"}
-    if github_token:
-        headers["Authorization"] = f"Bearer {github_token}"
-
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(
-                f"https://api.github.com/repos/{owner}/{repo_name}",
-                headers=headers,
-            )
-    except Exception as exc:
-        logger.error("GitHub API request failed: %s", exc)
-        raise HTTPException(status_code=502, detail="Failed to reach GitHub API")
-
-    if resp.status_code == 404:
-        raise HTTPException(status_code=404, detail="GitHub repository not found")
-    if resp.status_code != 200:
-        raise HTTPException(status_code=502, detail=f"GitHub API returned {resp.status_code}")
-
-    data = resp.json()
-    return {
-        "title": data.get("name", ""),
-        "description": data.get("description") or "",
-        "short_description": (data.get("description") or "")[:120],
-        "github_url": data.get("html_url", ""),
-        "tech": [data["language"]] if data.get("language") else [],
-        "source": "github",
-    }
-
-
 # ---------------------------------------------------------
 # MUSIC CRUD
 # ---------------------------------------------------------
 
 ALLOWED_AUDIO_EXTENSIONS = {".mp3", ".wav", ".ogg", ".flac", ".m4a"}
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+
+
+@router.post("/upload-image", response_model=UploadResponse)
+async def admin_upload_image(
+    file: UploadFile = File(...),
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+):
+    """
+    Upload a project image file (JPEG, PNG, WebP, GIF).
+    Saves to frontend/public/images/projects/ and returns the relative URL.
+    """
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No filename provided")
+
+    ext = Path(file.filename).suffix.lower()
+    if ext not in ALLOWED_IMAGE_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported image format. Allowed: JPEG, PNG, WebP, GIF",
+        )
+
+    try:
+        project_root = Path(__file__).parent.parent.parent
+        images_dir = project_root / "frontend" / "public" / "images" / "projects"
+        images_dir.mkdir(parents=True, exist_ok=True)
+
+        file_path = images_dir / file.filename
+        content = await file.read()
+        with open(file_path, "wb") as f:
+            f.write(content)
+
+        logger.info("Project image uploaded: %s", file.filename)
+        return UploadResponse(filename=file.filename, url=f"/images/projects/{file.filename}")
+    except Exception as exc:
+        logger.error("Image upload failed: %s", exc)
+        raise HTTPException(status_code=500, detail="Failed to upload image")
 
 
 @router.get("/music", response_model=List[Dict[str, Any]])

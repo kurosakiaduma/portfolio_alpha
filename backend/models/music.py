@@ -8,6 +8,7 @@ class MusicEntry(BaseModel):
     artist: str = Field(...)
     artwork_url: Optional[str] = None
     audio_url: Optional[str] = None
+    youtube_video_id: Optional[str] = None
     source_platform: Literal["spotify", "soundcloud", "youtube", "lastfm", "manual"] = Field(
         default="manual"
     )
@@ -16,7 +17,8 @@ class MusicEntry(BaseModel):
     display_order: int = Field(default=0)
 
     @model_validator(mode="after")
-    def audio_required_when_playable(self) -> "MusicEntry":
-        if self.playable and not self.audio_url:
-            raise ValueError("audio_url is required when playable is True")
+    def set_playable_from_youtube(self) -> "MusicEntry":
+        # playable is True when a youtube_video_id is present
+        if self.youtube_video_id:
+            self.playable = True
         return self

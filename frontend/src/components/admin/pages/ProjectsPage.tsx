@@ -3,6 +3,7 @@ import { adminGetProjects, adminDeleteProject } from '../../../lib/adminApi';
 import type { Project } from '../../../types/projects';
 import { Pencil, Trash2, Plus, RefreshCw, Star, SquareCode, ExternalLink } from 'lucide-react';
 import { ProjectForm } from '../components/ProjectForm';
+import { useToast } from '../components/ToastContext';
 
 export function ProjectsPage() {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -10,6 +11,7 @@ export function ProjectsPage() {
     const [error, setError] = useState<string | null>(null);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
     const [isCreating, setIsCreating] = useState(false);
+    const toast = useToast();
 
     const loadProjects = async () => {
         try {
@@ -30,13 +32,15 @@ export function ProjectsPage() {
 
     const handleDelete = async (id: string | undefined) => {
         if (!id) return;
-        if (!confirm('Are you sure you want to delete this project?')) return;
-        try {
-            await adminDeleteProject(id);
-            setProjects(projects.filter(p => p.id !== id));
-        } catch (err: any) {
-            alert(err.message);
-        }
+        toast.confirm('Are you sure you want to delete this project?', async () => {
+            try {
+                await adminDeleteProject(id);
+                setProjects(prev => prev.filter(p => p.id !== id));
+                toast.success('Project deleted');
+            } catch (err: any) {
+                toast.error(err.message);
+            }
+        });
     };
 
     if (editingProject || isCreating) {

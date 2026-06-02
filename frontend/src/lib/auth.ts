@@ -20,11 +20,16 @@ export interface LoginPayload {
 }
 
 /**
- * Get stored auth token from localStorage.
+ * Get stored auth token — localStorage first, cookie fallback.
+ * Keeps the two in sync so a cookie-only session is still picked up.
  */
 export function getAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem(AUTH_TOKEN_KEY);
+  const fromStorage = localStorage.getItem(AUTH_TOKEN_KEY);
+  if (fromStorage) return fromStorage;
+  // Fall back to cookie (set by backend on login)
+  const match = document.cookie.match(/(?:^|;\s*)admin_token=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
 }
 
 /**
@@ -36,14 +41,16 @@ export function setAuthToken(token: string): void {
 }
 
 /**
- * Clear auth token from localStorage.
+ * Clear auth token from localStorage and cookies.
  */
 export function clearAuthToken(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(AUTH_USER_KEY);
-  // Clear cookie by setting max-age to 0
-  document.cookie = `admin_token=; path=/; max-age=0; SameSite=Lax`;
+  // Expire cookie regardless of path it was set on
+  const expiry = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  document.cookie = `admin_token=; path=/; ${expiry}; SameSite=Lax`;
+  document.cookie = `admin_token=; path=/alter; ${expiry}; SameSite=Lax`;
 }
 
 /**

@@ -3,6 +3,7 @@ import type { Project } from "../types/projects";
 import { getProjects } from "../lib/api";
 import { filterProjects } from "../lib/projectFilters";
 import type { ProjectFilters } from "../lib/projectFilters";
+import { ImageGallery } from "./ImageGallery";
 
 const API_BASE_URL = (import.meta as any).env?.PUBLIC_API_URL || "/api";
 
@@ -49,19 +50,14 @@ function ProjectCard({ project }: { project: Project }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Cover image */}
+      {/* Cover image / gallery */}
       <div className="relative w-full overflow-hidden" style={{ height: "160px" }}>
-        {project.cover_image ? (
-          <img
-            src={project.cover_image}
-            alt={project.title}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
-            <span className="text-slate-500 font-mono text-xs">No image</span>
-          </div>
-        )}
+        <ImageGallery
+          images={project.images || []}
+          cover={project.cover_image}
+          alt={project.title}
+          className="w-full h-full"
+        />
         {/* Year badge */}
         <span className="absolute top-2 right-2 bg-slate-900/90 text-cyan-300 font-mono text-xs px-2 py-1 rounded border border-cyan-400/30">
           {project.year}

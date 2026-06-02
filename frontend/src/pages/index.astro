@@ -9,6 +9,7 @@ import ProjectsIsland from '../components/ProjectsIsland.tsx';
 import MusicIsland from '../components/MusicIsland.tsx';
 import BlogIsland from '../components/BlogIsland.tsx';
 import Footer from '../components/Footer.astro';
+import ContactForm from '../components/ContactForm.tsx';
 import SOCIALS from '../lib/socials';
 const socials = SOCIALS as { id: string; href: string; label: string }[];
 ---
@@ -100,24 +101,8 @@ const socials = SOCIALS as { id: string; href: string; label: string }[];
 					Ready to collaborate on your next project? Let's create something amazing together.
 				</p>
 				
-				<div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-					<a 
-						href="mailto:tevin74@live.com" 
-						class="group relative px-8 py-4 bg-transparent border-2 border-retro-cyan text-retro-cyan font-mono text-lg transition-all duration-300 hover:bg-retro-cyan hover:text-retro-bg hover:shadow-neon-cyan"
-					>
-						<span class="relative z-10">Send Message</span>
-						<div class="absolute inset-0 bg-retro-cyan opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-					</a>
-					
-					<a 
-						href="https://linkedin.com/in/kurosakiaduma" 
-						target="_blank" 
-						rel="noopener noreferrer"
-						class="group relative px-8 py-4 bg-transparent border-2 border-retro-magenta text-retro-magenta font-mono text-lg transition-all duration-300 hover:bg-retro-magenta hover:text-retro-bg hover:shadow-neon-magenta"
-					>
-						<span class="relative z-10">LinkedIn</span>
-						<div class="absolute inset-0 bg-retro-magenta opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-					</a>
+				<div class="mb-16">
+					<ContactForm client:load />
 				</div>
 			</div>
 		</section>

@@ -67,7 +67,7 @@ import Model3D from './Model3D.tsx';
     <div class="flex flex-col items-center space-y-2">
       <span class="text-text-muted font-mono text-xs hidden sm:block">SCROLL</span>
       <div class="scroll-arrow w-4 h-6 sm:w-5 sm:h-8 border-2 border-retro-lime rounded-full relative">
-        <div class="scroll-dot w-1 h-1 bg-retro-lime rounded-full absolute top-1 sm:top-1.5 left-1/2 transform -translate-x-1/2"></div>
+        <div class="scroll-dot w-1 h-1 bg-retro-lime rounded-full absolute top-1 sm:top-1.5 left-[calc(50%-0.5px)]"></div>
       </div>
     </div>
   </div>
@@ -181,9 +181,9 @@ import Model3D from './Model3D.tsx';
   }
 
   @keyframes scrollDot {
-    0% { transform: translateX(-50%) translateY(0); opacity: 0; }
+    0% { transform: translateY(0); opacity: 0; }
     40% { opacity: 1; }
-    80% { transform: translateX(-50%) translateY(20px); opacity: 0; }
+    80% { transform: translateY(20px); opacity: 0; }
     100% { opacity: 0; }
   }
 

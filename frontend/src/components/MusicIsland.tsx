@@ -1,11 +1,24 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { MusicEntry } from "../types/music";
 import { getMusic } from "../lib/api";
+
+// ── Fisher-Yates shuffle (pure, returns a new array) ─────────────────────────
+function shuffleArray<T>(arr: T[]): T[] {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
 
 // ── Loading skeleton ──────────────────────────────────────────────────────────
 function MusicCardSkeleton() {
   return (
-    <div className="rounded-xl bg-slate-800/60 animate-pulse" style={{ width: "200px", height: "240px" }} />
+    <div
+      className="rounded-xl bg-slate-800/60 animate-pulse flex-shrink-0"
+      style={{ width: "200px", height: "240px" }}
+    />
   );
 }
 
@@ -19,7 +32,7 @@ function LoadingSkeleton() {
   );
 }
 
-// ── Play icon ─────────────────────────────────────────────────────────────────
+// ── Icons ─────────────────────────────────────────────────────────────────────
 function PlayIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10">
@@ -28,19 +41,29 @@ function PlayIcon() {
   );
 }
 
-function PauseIcon() {
+function StopIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+      <path d="M6 6h12v12H6z" />
     </svg>
   );
 }
 
-function PlaySmallIcon() {
+// ── Hidden YouTube iframe player ──────────────────────────────────────────────
+interface YouTubeEmbedProps {
+  videoId: string;
+}
+
+function YouTubeEmbed({ videoId }: YouTubeEmbedProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-      <path d="M8 5v14l11-7z" />
-    </svg>
+    <iframe
+      key={videoId}
+      src={`https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&enablejsapi=0`}
+      allow="autoplay; encrypted-media"
+      allowFullScreen
+      style={{ display: "none" }}
+      title="YouTube player"
+    />
   );
 }
 
@@ -56,8 +79,7 @@ function MusicCard({ entry, isPlaying, onPlay }: MusicCardProps) {
 
   return (
     <div
-      className="relative rounded-xl overflow-hidden border border-slate-700/50 bg-slate-900/80
-        transition-all duration-300 hover:border-cyan-400/40 hover:-translate-y-1 flex-shrink-0"
+      className="relative rounded-xl overflow-hidden border border-slate-700/50 bg-slate-900/80 transition-all duration-300 hover:border-cyan-400/40 hover:-translate-y-1 flex-shrink-0"
       style={{ width: "200px" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -76,23 +98,22 @@ function MusicCard({ entry, isPlaying, onPlay }: MusicCardProps) {
           </div>
         )}
 
-        {/* Play overlay — only for playable entries */}
-        {entry.playable && (
+        {/* Play overlay — only for entries with a YouTube video ID */}
+        {entry.youtube_video_id && (
           <div
-            className={`absolute inset-0 bg-slate-900/70 flex items-center justify-center
-              transition-opacity duration-200 ${hovered || isPlaying ? "opacity-100" : "opacity-0"}`}
+            className={`absolute inset-0 bg-slate-900/70 flex items-center justify-center transition-opacity duration-200 ${hovered || isPlaying ? "opacity-100" : "opacity-0"}`}
           >
             <button
               onClick={() => onPlay(entry)}
               className="text-cyan-300 hover:text-white transition-colors"
-              aria-label={isPlaying ? `Pause ${entry.title}` : `Play ${entry.title}`}
+              aria-label={`Play ${entry.title}`}
             >
-              {isPlaying ? <PauseIcon /> : <PlayIcon />}
+              <PlayIcon />
             </button>
           </div>
         )}
 
-        {/* Now-playing indicator */}
+        {/* Now-playing badge */}
         {isPlaying && (
           <span className="absolute top-2 left-2 bg-cyan-500/20 text-cyan-300 font-mono text-[10px] px-2 py-0.5 rounded border border-cyan-400/40">
             ▶ Playing
@@ -106,7 +127,8 @@ function MusicCard({ entry, isPlaying, onPlay }: MusicCardProps) {
           {entry.title}
         </p>
         <p className="text-slate-400 font-mono text-[11px] mt-0.5 line-clamp-1">{entry.artist}</p>
-        {entry.source_url && (
+        {/* Display-only link for entries without YouTube playback */}
+        {!entry.youtube_video_id && entry.source_url && (
           <a
             href={entry.source_url}
             target="_blank"
@@ -121,26 +143,13 @@ function MusicCard({ entry, isPlaying, onPlay }: MusicCardProps) {
   );
 }
 
-// ── Mini player bar ───────────────────────────────────────────────────────────
-interface MiniPlayerProps {
+// ── Now Playing bar ───────────────────────────────────────────────────────────
+interface NowPlayingBarProps {
   entry: MusicEntry;
-  isPlaying: boolean;
-  progress: number;       // 0–1
-  duration: number;
-  onToggle: () => void;
-  onSeek: (ratio: number) => void;
+  onStop: () => void;
 }
 
-function MiniPlayer({ entry, isPlaying, progress, duration, onToggle, onSeek }: MiniPlayerProps) {
-  function formatTime(secs: number) {
-    if (!isFinite(secs) || secs < 0) return "0:00";
-    const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60);
-    return `${m}:${s.toString().padStart(2, "0")}`;
-  }
-
-  const elapsed = progress * duration;
-
+function NowPlayingBar({ entry, onStop }: NowPlayingBarProps) {
   return (
     <div className="mt-6 rounded-xl border border-cyan-400/20 bg-slate-900/90 p-3 flex items-center gap-4">
       {/* Artwork thumbnail */}
@@ -155,35 +164,25 @@ function MiniPlayer({ entry, isPlaying, progress, duration, onToggle, onSeek }: 
       </div>
 
       {/* Track info */}
-      <div className="flex-shrink-0 min-w-0" style={{ width: "120px" }}>
+      <div className="flex-1 min-w-0">
         <p className="text-white font-mono text-xs font-semibold line-clamp-1">{entry.title}</p>
         <p className="text-slate-400 font-mono text-[11px] line-clamp-1">{entry.artist}</p>
       </div>
 
-      {/* Play/pause */}
-      <button
-        onClick={onToggle}
-        className="flex-shrink-0 text-cyan-300 hover:text-white transition-colors"
-        aria-label={isPlaying ? "Pause" : "Play"}
-      >
-        {isPlaying ? <PauseIcon /> : <PlaySmallIcon />}
-      </button>
+      {/* Playing badge */}
+      <span className="flex-shrink-0 text-cyan-300 font-mono text-[10px] flex items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse inline-block" />
+        Now Playing
+      </span>
 
-      {/* Progress scrubber */}
-      <div className="flex-1 flex items-center gap-2 min-w-0">
-        <span className="text-slate-500 font-mono text-[10px] flex-shrink-0">{formatTime(elapsed)}</span>
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.001}
-          value={progress}
-          onChange={(e) => onSeek(parseFloat(e.target.value))}
-          className="flex-1 h-1 accent-cyan-400 cursor-pointer"
-          aria-label="Seek"
-        />
-        <span className="text-slate-500 font-mono text-[10px] flex-shrink-0">{formatTime(duration)}</span>
-      </div>
+      {/* Stop button */}
+      <button
+        onClick={onStop}
+        className="flex-shrink-0 text-slate-400 hover:text-red-400 transition-colors"
+        aria-label="Stop playback"
+      >
+        <StopIcon />
+      </button>
     </div>
   );
 }
@@ -193,39 +192,6 @@ export default function MusicIsland() {
   const [entries, setEntries] = useState<MusicEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeEntry, setActiveEntry] = useState<MusicEntry | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Initialise the shared audio element once
-  useEffect(() => {
-    const audio = new Audio();
-    audioRef.current = audio;
-
-    const onTimeUpdate = () => {
-      if (audio.duration > 0) {
-        setProgress(audio.currentTime / audio.duration);
-      }
-    };
-    const onDurationChange = () => setDuration(audio.duration || 0);
-    const onEnded = () => {
-      setIsPlaying(false);
-      setProgress(0);
-    };
-
-    audio.addEventListener("timeupdate", onTimeUpdate);
-    audio.addEventListener("durationchange", onDurationChange);
-    audio.addEventListener("ended", onEnded);
-
-    return () => {
-      audio.pause();
-      audio.removeEventListener("timeupdate", onTimeUpdate);
-      audio.removeEventListener("durationchange", onDurationChange);
-      audio.removeEventListener("ended", onEnded);
-    };
-  }, []);
 
   useEffect(() => {
     getMusic()
@@ -233,51 +199,17 @@ export default function MusicIsland() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handlePlay = useCallback((entry: MusicEntry) => {
-    const audio = audioRef.current;
-    if (!audio) return;
+  // One-time Fisher-Yates shuffle applied after entries are loaded (Req 7)
+  const shuffledEntries = useMemo(() => shuffleArray(entries), [entries]);
 
-    if (activeEntry?.id === entry.id) {
-      // Toggle play/pause for the same track
-      if (isPlaying) {
-        audio.pause();
-        setIsPlaying(false);
-      } else {
-        audio.play().catch(console.error);
-        setIsPlaying(true);
-      }
-      return;
-    }
-
-    // Switch to a new track
-    audio.pause();
-    audio.src = entry.audio_url ?? "";
-    audio.currentTime = 0;
-    setProgress(0);
-    setDuration(0);
+  const handlePlay = (entry: MusicEntry) => {
+    if (!entry.youtube_video_id) return;
     setActiveEntry(entry);
-    audio.play().catch(console.error);
-    setIsPlaying(true);
-  }, [activeEntry, isPlaying]);
+  };
 
-  const handleToggle = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio || !activeEntry) return;
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-    } else {
-      audio.play().catch(console.error);
-      setIsPlaying(true);
-    }
-  }, [activeEntry, isPlaying]);
-
-  const handleSeek = useCallback((ratio: number) => {
-    const audio = audioRef.current;
-    if (!audio || !isFinite(audio.duration)) return;
-    audio.currentTime = ratio * audio.duration;
-    setProgress(ratio);
-  }, []);
+  const handleStop = () => {
+    setActiveEntry(null);
+  };
 
   if (loading) {
     return (
@@ -297,28 +229,26 @@ export default function MusicIsland() {
 
   return (
     <section className="py-12 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
-      {/* Responsive grid */}
+      {/* Hidden YouTube iframe — renders only while a track is active */}
+      {activeEntry?.youtube_video_id && (
+        <YouTubeEmbed videoId={activeEntry.youtube_video_id} />
+      )}
+
+      {/* Card grid */}
       <div className="flex flex-wrap gap-4">
-        {entries.map((entry) => (
+        {shuffledEntries.map((entry) => (
           <MusicCard
             key={entry.id ?? `${entry.title}-${entry.artist}`}
             entry={entry}
-            isPlaying={isPlaying && activeEntry?.id === entry.id}
+            isPlaying={activeEntry?.id === entry.id}
             onPlay={handlePlay}
           />
         ))}
       </div>
 
-      {/* Mini player — visible while a track is active */}
+      {/* Now Playing bar */}
       {activeEntry && (
-        <MiniPlayer
-          entry={activeEntry}
-          isPlaying={isPlaying}
-          progress={progress}
-          duration={duration}
-          onToggle={handleToggle}
-          onSeek={handleSeek}
-        />
+        <NowPlayingBar entry={activeEntry} onStop={handleStop} />
       )}
     </section>
   );

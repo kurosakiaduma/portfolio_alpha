@@ -1,0 +1,15 @@
+---
+export const prerender = false;
+
+const token = Astro.cookies.get('admin_token')?.value;
+if (!token) return Astro.redirect('/alter/login');
+
+Astro.response.headers.set('Cache-Control', 'no-store');
+
+import Layout from '../../layouts/Layout.astro';
+import AdminShell from '../../components/admin/AdminShell';
+---
+
+<Layout title="Projects — Alter">
+    <AdminShell client:only="react" page="projects" />
+</Layout>

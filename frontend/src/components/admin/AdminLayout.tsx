@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { LayoutDashboard, Code, ShieldCheck, FolderGit2, Music, MessageSquareText, LogOut } from 'lucide-react';
 import { logout, getStoredUser } from '../../lib/auth';
+import { ToastProvider } from './components/ToastContext';
 
 export function AdminLayout() {
     const [user] = useState(() => getStoredUser());
@@ -69,7 +70,9 @@ export function AdminLayout() {
 
                 {/* Main Content Area */}
                 <main className="flex-1 overflow-y-auto p-6 md:p-8">
-                    <Outlet />
+                    <ToastProvider>
+                        <Outlet />
+                    </ToastProvider>
                 </main>
             </div>
         </div>

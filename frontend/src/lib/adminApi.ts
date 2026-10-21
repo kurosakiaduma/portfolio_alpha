@@ -186,11 +186,11 @@ export async function adminUploadAudio(file: File): Promise<{ filename: string; 
 // -------------------------------------------------------------
 
 export function adminGetBlog(): Promise<BlogEntry[]> {
-    return fetchJson<BlogEntry[]>('/blog');
+    return fetchJson<BlogEntry[]>('/blogs');
 }
 
 export function adminCreateBlog(entry: Omit<BlogEntry, 'id'>): Promise<BlogEntry> {
-    return fetchJson<BlogEntry>('/blog', {
+    return fetchJson<BlogEntry>('/blogs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry),
@@ -198,7 +198,7 @@ export function adminCreateBlog(entry: Omit<BlogEntry, 'id'>): Promise<BlogEntry
 }
 
 export function adminUpdateBlog(id: string, entry: Omit<BlogEntry, 'id'>): Promise<BlogEntry> {
-    return fetchJson<BlogEntry>(`/blog/${id}`, {
+    return fetchJson<BlogEntry>(`/blogs/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry),
@@ -206,7 +206,7 @@ export function adminUpdateBlog(id: string, entry: Omit<BlogEntry, 'id'>): Promi
 }
 
 export function adminDeleteBlog(id: string): Promise<void> {
-    return fetchJson<void>(`/blog/${id}`, { method: 'DELETE' });
+    return fetchJson<void>(`/blogs/${id}`, { method: 'DELETE' });
 }
 
 // -------------------------------------------------------------
@@ -251,4 +251,30 @@ export async function adminUploadIcon(
         throw new Error(err.detail || 'Icon upload failed');
     }
     return res.json();
+}
+
+// -------------------------------------------------------------
+// MESSAGES
+// -------------------------------------------------------------
+
+export interface ContactMessage {
+    id?: string;
+    name: string;
+    email: string;
+    message: string;
+    submitted_at: string;
+    reply_text?: string;
+    replied_at?: string;
+}
+
+export function adminGetMessages(): Promise<ContactMessage[]> {
+    return fetchJson<ContactMessage[]>('/messages');
+}
+
+export function adminReplyMessage(id: string, replyText: string): Promise<ContactMessage> {
+    return fetchJson<ContactMessage>(`/messages/${id}/reply`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reply_text: replyText }),
+    });
 }

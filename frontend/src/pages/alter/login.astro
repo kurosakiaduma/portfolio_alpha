@@ -227,10 +227,31 @@ import "../../styles/global.css";
     </div>
 
     <script>
-      // If already authenticated, skip the login page
-      if (localStorage.getItem("admin_token")) {
-        window.location.replace("/alter");
-      }
+      // If an auth token exists, verify it before redirecting.
+      (async () => {
+        const token = localStorage.getItem("admin_token");
+        if (!token) return;
+
+        try {
+          const response = await fetch("/api/admin/verify", {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (response.ok) {
+            window.location.replace("/alter");
+            return;
+          }
+        } catch (error) {
+          console.error("Auth verification failed:", error);
+        }
+
+        // Clear stale auth state and stay on login.
+        localStorage.removeItem("admin_token");
+        localStorage.removeItem("admin_user");
+        document.cookie = `admin_token=; path=/; max-age=0; SameSite=Lax`;
+        document.cookie = `admin_token=; path=/alter; max-age=0; SameSite=Lax`;
+      })();
 
       // Password visibility toggle
       const toggleBtn = document.getElementById(

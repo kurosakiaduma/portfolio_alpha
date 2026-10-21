@@ -1,32 +1,44 @@
-# Use Node.js 18 Alpine as base image
-FROM node:18-alpine AS builder
+# Use Node.js 22 Alpine as base image
+FROM node:22-alpine AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Set up build arguments and environment variables for API URLs
+ARG PUBLIC_SITE_URL=http://localhost:4321
+ARG BACKEND_URL=http://portfolio-backend
+ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL
+ENV BACKEND_URL=$BACKEND_URL
 
-# Install dependencies
-RUN npm ci --only=production
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Enable corepack, install dependencies from pnpm lockfile and run build scripts
+RUN corepack enable \
+ && corepack prepare pnpm@10.15.0 --activate \
+ && pnpm --version \
+ && pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
-# Production stage
-FROM nginx:alpine
+# Production stage (Swap Nginx for Node)
+FROM node:22-alpine
 
-# Copy built assets from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+WORKDIR /app
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy the built dist directory containing the server entrypoint
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 
-# Expose port 80
-EXPOSE 80
+# Astro standalone node adapter runs on port 4321 by default
+ENV HOST=0.0.0.0
+ENV PORT=4321
+EXPOSE 4321
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start the Astro node server
+CMD ["node", "./dist/server/entry.mjs"]

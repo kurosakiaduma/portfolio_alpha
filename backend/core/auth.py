@@ -5,7 +5,7 @@ Handles token generation, validation, and admin user verification via MongoDB.
 
 import os
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 
 import bcrypt
@@ -13,10 +13,15 @@ import jwt
 
 logger = logging.getLogger(__name__)
 
-JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-key-change-in-production")
+JWT_SECRET: Optional[str] = os.getenv("JWT_SECRET")
+if not JWT_SECRET:
+    logger.error("JWT_SECRET environment variable is not set")
+    raise EnvironmentError("JWT_SECRET environment variable is required for authentication")
+
 JWT_ALGORITHM = "HS256"
 TOKEN_EXPIRY_HOURS = 24
 
+utc_plus_3 = timezone(timedelta(hours=3))
 
 def hash_password(password: str) -> str:
     """Hash a plaintext password with bcrypt."""
@@ -30,17 +35,17 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 def create_access_token(user_id: str, email: str, name: str = "Admin") -> str:
     """Create a JWT access token for an admin user."""
-    expire = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+    expire = datetime.now(utc_plus_3) + timedelta(hours=TOKEN_EXPIRY_HOURS)
     payload = {
         "sub": user_id,
         "email": email,
         "name": name,
         "is_admin": True,
         "exp": expire,
-        "iat": datetime.utcnow(),
+        "iat": datetime.now(utc_plus_3),
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-    logger.info("Generated access token for user: %s", email)
+    logger.info("Generated access token for user: %s that will expire at %s", email, expire.isoformat())
     return token
 
 

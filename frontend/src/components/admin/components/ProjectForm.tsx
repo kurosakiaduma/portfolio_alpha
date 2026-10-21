@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { adminCreateProject, adminUpdateProject, adminFetchFromGitHub } from '../../../lib/adminApi';
+import { adminCreateProject, adminUpdateProject, adminDeleteProject, adminFetchFromGitHub } from '../../../lib/adminApi';
 import type { Project } from '../../../types/projects';
 import { Save, X, SquareCode, Loader2 } from 'lucide-react';
 import { TechTagInput } from './TechTagInput';
 import { CoverImageInput } from './CoverImageInput';
 import { AdminImageGallery } from './AdminImageGallery';
+import { EntryPreviewModal } from './EntryPreviewModal';
 
 interface ProjectFormProps {
     project: Project | null;
@@ -64,6 +65,8 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
         setFormData(prev => ({ ...prev, tech: tags }));
     };
 
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
     const handleFetchFromGitHub = async () => {
         if (!githubUrl.trim()) return;
         setFetching(true);
@@ -83,12 +86,11 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleConfirmSave = async () => {
         setLoading(true);
         setError(null);
         try {
-            if (isEditing && project.id) {
+            if (isEditing && project?.id) {
                 await adminUpdateProject(project.id, formData);
             } else {
                 await adminCreateProject(formData);
@@ -96,8 +98,23 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
             onSave();
         } catch (err: any) {
             setError(err.message);
+            throw err;
+        } finally {
             setLoading(false);
         }
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!project?.id) {
+            throw new Error('Cannot delete unsaved project');
+        }
+        await adminDeleteProject(project.id);
+        onCancel();
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsPreviewOpen(true);
     };
 
     const inputClass = "w-full bg-slate-950 border border-slate-700 rounded-md px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors";
@@ -240,6 +257,19 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                         <Save size={16} /> {loading ? 'Saving...' : 'Save Project'}
                     </button>
                 </div>
+                {isPreviewOpen && (
+                    <EntryPreviewModal
+                        entryType="project"
+                        entry={{ ...formData, id: project?.id ?? 'preview' }}
+                        isOpen={isPreviewOpen}
+                        onClose={() => setIsPreviewOpen(false)}
+                        onSave={handleConfirmSave}
+                        onDelete={project?.id ? handleConfirmDelete : undefined}
+                        saveLabel={isEditing ? 'Confirm Save' : 'Save Project'}
+                        deleteLabel="Delete Project"
+                        isCreating={!isEditing}
+                    />
+                )}
             </form>
         </div>
     );

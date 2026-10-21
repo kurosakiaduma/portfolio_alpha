@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
-import { adminCreateSkill, adminUpdateSkill, adminUploadIcon } from '../../../lib/adminApi';
+import { adminCreateSkill, adminUpdateSkill, adminDeleteSkill, adminUploadIcon } from '../../../lib/adminApi';
 import type { Skill } from '../../../types/skills';
 import { Save, X, Upload } from 'lucide-react';
+import { EntryPreviewModal } from './EntryPreviewModal';
 
 interface SkillFormProps {
     skill: Skill | null;
@@ -14,6 +15,7 @@ export function SkillForm({ skill, onSave, onCancel }: SkillFormProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState<Omit<Skill, 'id'>>({
@@ -65,13 +67,12 @@ export function SkillForm({ skill, onSave, onCancel }: SkillFormProps) {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleConfirmSave = async () => {
         setLoading(true);
         setError(null);
 
         try {
-            if (isEditing && skill.id) {
+            if (isEditing && skill?.id) {
                 await adminUpdateSkill(skill.id, formData);
             } else {
                 await adminCreateSkill(formData);
@@ -79,8 +80,24 @@ export function SkillForm({ skill, onSave, onCancel }: SkillFormProps) {
             onSave();
         } catch (err: any) {
             setError(err.message);
+            throw err;
+        } finally {
             setLoading(false);
         }
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!skill?.id) {
+            throw new Error('Cannot delete unsaved skill');
+        }
+
+        await adminDeleteSkill(skill.id);
+        onCancel();
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsPreviewOpen(true);
     };
 
     return (
@@ -247,6 +264,19 @@ export function SkillForm({ skill, onSave, onCancel }: SkillFormProps) {
                     </button>
                 </div>
             </form>
+            {isPreviewOpen && (
+                <EntryPreviewModal
+                    entryType="skill"
+                    entry={{ ...formData, id: skill?.id ?? 'preview' }}
+                    isOpen={isPreviewOpen}
+                    onClose={() => setIsPreviewOpen(false)}
+                    onSave={handleConfirmSave}
+                    onDelete={skill?.id ? handleConfirmDelete : undefined}
+                    saveLabel={isEditing ? 'Confirm Save' : 'Save Skill'}
+                    deleteLabel="Delete Skill"
+                    isCreating={!isEditing}
+                />
+            )}
         </div>
     );
 }

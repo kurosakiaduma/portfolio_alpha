@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { adminCreateMusic, adminUpdateMusic } from '../../../lib/adminApi';
+import { adminCreateMusic, adminUpdateMusic, adminDeleteMusic } from '../../../lib/adminApi';
 import { extractYouTubeId } from '../../../lib/youtube';
 import type { MusicEntry } from '../../../types/music';
 import { Save, X } from 'lucide-react';
+import { EntryPreviewModal } from './EntryPreviewModal';
 
 function YoutubeIcon({ size = 15, className = '' }: { size?: number; className?: string }) {
     return (
@@ -23,6 +24,7 @@ export function MusicForm({ entry, onSave, onCancel }: MusicFormProps) {
     const isEditing = !!entry;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
     // Derive the initial YouTube URL from existing youtube_video_id if editing
     const initialYouTubeUrl = entry?.youtube_video_id
@@ -71,26 +73,21 @@ export function MusicForm({ entry, onSave, onCancel }: MusicFormProps) {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Block submission if a YouTube URL is entered but invalid
+    const handleConfirmSave = async () => {
         if (youtubeUrl.trim() && !formData.youtube_video_id) {
-            setYoutubeError('Could not extract a YouTube video ID from this URL. Please correct or clear it.');
-            return;
+            throw new Error('Could not extract a YouTube video ID from this URL. Please correct or clear it.');
         }
 
         setLoading(true);
         setError(null);
         try {
-            // Never send audio_url; playable is derived server-side from youtube_video_id
             const payload: Omit<MusicEntry, 'id'> = {
                 ...formData,
                 audio_url: undefined,
                 playable: !!formData.youtube_video_id,
             };
 
-            if (isEditing && entry.id) {
+            if (isEditing && entry?.id) {
                 await adminUpdateMusic(entry.id, payload);
             } else {
                 await adminCreateMusic(payload);
@@ -98,8 +95,27 @@ export function MusicForm({ entry, onSave, onCancel }: MusicFormProps) {
             onSave();
         } catch (err: any) {
             setError(err.message);
+            throw err;
+        } finally {
             setLoading(false);
         }
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!entry?.id) {
+            throw new Error('Cannot delete unsaved music entry');
+        }
+        await adminDeleteMusic(entry.id);
+        onCancel();
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (youtubeUrl.trim() && !formData.youtube_video_id) {
+            setYoutubeError('Could not extract a YouTube video ID from this URL. Please correct or clear it.');
+            return;
+        }
+        setIsPreviewOpen(true);
     };
 
     const inputClass = "w-full bg-slate-950 border border-slate-700 rounded-md px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors";
@@ -206,6 +222,19 @@ export function MusicForm({ entry, onSave, onCancel }: MusicFormProps) {
                     </button>
                 </div>
             </form>
+            {isPreviewOpen && (
+                <EntryPreviewModal
+                    entryType="music"
+                    entry={{ ...formData, id: entry?.id ?? 'preview' }}
+                    isOpen={isPreviewOpen}
+                    onClose={() => setIsPreviewOpen(false)}
+                    onSave={handleConfirmSave}
+                    onDelete={entry?.id ? handleConfirmDelete : undefined}
+                    saveLabel={isEditing ? 'Confirm Save' : 'Save Entry'}
+                    deleteLabel="Delete Music"
+                    isCreating={!isEditing}
+                />
+            )}
         </div>
     );
 }

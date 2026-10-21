@@ -5,6 +5,7 @@ import { Plus, RefreshCw } from 'lucide-react';
 import { SkillForm } from '../components/SkillForm';
 import { AdminSkillCard } from '../components/AdminSkillCard';
 import { useToast } from '../components/ToastContext';
+import { EntryPreviewModal } from '../components/EntryPreviewModal';
 
 export function SkillsPage() {
     const [skills, setSkills] = useState<Skill[]>([]);
@@ -12,6 +13,9 @@ export function SkillsPage() {
     const [error, setError] = useState<string | null>(null);
     const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
     const [isCreating, setIsCreating] = useState(false);
+    const [previewSkill, setPreviewSkill] = useState<Skill | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [deleteAction, setDeleteAction] = useState<(() => Promise<void>) | null>(null);
     const toast = useToast();
 
     const loadSkills = async () => {
@@ -31,17 +35,14 @@ export function SkillsPage() {
         loadSkills();
     }, []);
 
-    const handleDelete = async (id: string | undefined) => {
-        if (!id) return;
-        toast.confirm('Are you sure you want to delete this skill?', async () => {
-            try {
-                await adminDeleteSkill(id);
-                setSkills(prev => prev.filter(s => s.id !== id));
-                toast.success('Skill deleted');
-            } catch (err: any) {
-                toast.error(err.message);
-            }
+    const openDeletePreview = (skill: Skill) => {
+        setPreviewSkill(skill);
+        setDeleteAction(() => async () => {
+            await adminDeleteSkill(skill.id);
+            setSkills(prev => prev.filter(s => s.id !== skill.id));
+            toast.success('Skill deleted');
         });
+        setIsPreviewOpen(true);
     };
 
     if (editingSkill || isCreating) {
@@ -103,10 +104,24 @@ export function SkillsPage() {
                             key={skill.id}
                             skill={skill}
                             onEdit={() => setEditingSkill(skill)}
-                            onDelete={() => handleDelete(skill.id)}
+                            onDelete={() => openDeletePreview(skill)}
                         />
                     ))}
                 </div>
+            )}
+            {previewSkill && deleteAction && (
+                <EntryPreviewModal
+                    entryType="skill"
+                    entry={previewSkill}
+                    isOpen={isPreviewOpen}
+                    onClose={() => {
+                        setIsPreviewOpen(false);
+                        setPreviewSkill(null);
+                        setDeleteAction(null);
+                    }}
+                    onDelete={deleteAction}
+                    deleteLabel="Delete Skill"
+                />
             )}
         </div>
     );

@@ -4,6 +4,7 @@ import type { Project } from '../../../types/projects';
 import { Pencil, Trash2, Plus, RefreshCw, Star, SquareCode, ExternalLink } from 'lucide-react';
 import { ProjectForm } from '../components/ProjectForm';
 import { useToast } from '../components/ToastContext';
+import { EntryPreviewModal } from '../components/EntryPreviewModal';
 
 export function ProjectsPage() {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -11,6 +12,9 @@ export function ProjectsPage() {
     const [error, setError] = useState<string | null>(null);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
     const [isCreating, setIsCreating] = useState(false);
+    const [previewProject, setPreviewProject] = useState<Project | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [deleteAction, setDeleteAction] = useState<(() => Promise<void>) | null>(null);
     const toast = useToast();
 
     const loadProjects = async () => {
@@ -30,17 +34,14 @@ export function ProjectsPage() {
         loadProjects();
     }, []);
 
-    const handleDelete = async (id: string | undefined) => {
-        if (!id) return;
-        toast.confirm('Are you sure you want to delete this project?', async () => {
-            try {
-                await adminDeleteProject(id);
-                setProjects(prev => prev.filter(p => p.id !== id));
-                toast.success('Project deleted');
-            } catch (err: any) {
-                toast.error(err.message);
-            }
+    const openDeletePreview = (project: Project) => {
+        setPreviewProject(project);
+        setDeleteAction(() => async () => {
+            await adminDeleteProject(project.id);
+            setProjects(prev => prev.filter(p => p.id !== project.id));
+            toast.success('Project deleted');
         });
+        setIsPreviewOpen(true);
     };
 
     if (editingProject || isCreating) {
@@ -136,7 +137,7 @@ export function ProjectsPage() {
                                         className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded transition">
                                         <Pencil size={16} />
                                     </button>
-                                    <button onClick={() => handleDelete(project.id)}
+                                    <button onClick={() => openDeletePreview(project)}
                                         className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded transition">
                                         <Trash2 size={16} />
                                     </button>
@@ -153,6 +154,20 @@ export function ProjectsPage() {
                     </tbody>
                 </table>
             </div>
+            {previewProject && deleteAction && (
+                <EntryPreviewModal
+                    entryType="project"
+                    entry={previewProject}
+                    isOpen={isPreviewOpen}
+                    onClose={() => {
+                        setIsPreviewOpen(false);
+                        setPreviewProject(null);
+                        setDeleteAction(null);
+                    }}
+                    onDelete={deleteAction}
+                    deleteLabel="Delete Project"
+                />
+            )}
         </div>
     );
 }

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { adminCreateBlog, adminUpdateBlog } from '../../../lib/adminApi';
+import { adminCreateBlog, adminUpdateBlog, adminDeleteBlog } from '../../../lib/adminApi';
 import type { BlogEntry } from '../../../types/blog';
 import { Save, X } from 'lucide-react';
+import { EntryPreviewModal } from './EntryPreviewModal';
 
 interface BlogFormProps {
     entry: BlogEntry | null;
@@ -13,6 +14,7 @@ export function BlogForm({ entry, onSave, onCancel }: BlogFormProps) {
     const isEditing = !!entry;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
     const [formData, setFormData] = useState<Omit<BlogEntry, 'id'>>({
         title: entry?.title || '',
@@ -39,12 +41,11 @@ export function BlogForm({ entry, onSave, onCancel }: BlogFormProps) {
         setFormData(prev => ({ ...prev, tags }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleConfirmSave = async () => {
         setLoading(true);
         setError(null);
         try {
-            if (isEditing && entry.id) {
+            if (isEditing && entry?.id) {
                 await adminUpdateBlog(entry.id, formData);
             } else {
                 await adminCreateBlog(formData);
@@ -52,8 +53,23 @@ export function BlogForm({ entry, onSave, onCancel }: BlogFormProps) {
             onSave();
         } catch (err: any) {
             setError(err.message);
+            throw err;
+        } finally {
             setLoading(false);
         }
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!entry?.id) {
+            throw new Error('Cannot delete unsaved blog entry');
+        }
+        await adminDeleteBlog(entry.id);
+        onCancel();
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsPreviewOpen(true);
     };
 
     const inputClass = "w-full bg-slate-950 border border-slate-700 rounded-md px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors";
@@ -136,6 +152,19 @@ export function BlogForm({ entry, onSave, onCancel }: BlogFormProps) {
                     </button>
                 </div>
             </form>
+            {isPreviewOpen && (
+                <EntryPreviewModal
+                    entryType="blog"
+                    entry={{ ...formData, id: entry?.id ?? 'preview' }}
+                    isOpen={isPreviewOpen}
+                    onClose={() => setIsPreviewOpen(false)}
+                    onSave={handleConfirmSave}
+                    onDelete={entry?.id ? handleConfirmDelete : undefined}
+                    saveLabel={isEditing ? 'Confirm Save' : 'Save Entry'}
+                    deleteLabel="Delete Blog"
+                    isCreating={!isEditing}
+                />
+            )}
         </div>
     );
 }

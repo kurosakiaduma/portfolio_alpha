@@ -4,6 +4,7 @@ import type { MusicEntry } from '../../../types/music';
 import { Pencil, Trash2, Plus, RefreshCw, Music } from 'lucide-react';
 import { MusicForm } from '../components/MusicForm';
 import { useToast } from '../components/ToastContext';
+import { EntryPreviewModal } from '../components/EntryPreviewModal';
 
 export function MusicPage() {
     const [entries, setEntries] = useState<MusicEntry[]>([]);
@@ -11,6 +12,9 @@ export function MusicPage() {
     const [error, setError] = useState<string | null>(null);
     const [editingEntry, setEditingEntry] = useState<MusicEntry | null>(null);
     const [isCreating, setIsCreating] = useState(false);
+    const [previewEntry, setPreviewEntry] = useState<MusicEntry | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [deleteAction, setDeleteAction] = useState<(() => Promise<void>) | null>(null);
     const toast = useToast();
 
     const loadEntries = async () => {
@@ -30,17 +34,14 @@ export function MusicPage() {
         loadEntries();
     }, []);
 
-    const handleDelete = async (id: string | undefined) => {
-        if (!id) return;
-        toast.confirm('Are you sure you want to delete this music entry?', async () => {
-            try {
-                await adminDeleteMusic(id);
-                setEntries(prev => prev.filter(e => e.id !== id));
-                toast.success('Music entry deleted');
-            } catch (err: any) {
-                toast.error(err.message);
-            }
+    const openDeletePreview = (entry: MusicEntry) => {
+        setPreviewEntry(entry);
+        setDeleteAction(() => async () => {
+            await adminDeleteMusic(entry.id);
+            setEntries(prev => prev.filter(e => e.id !== entry.id));
+            toast.success('Music entry deleted');
         });
+        setIsPreviewOpen(true);
     };
 
     if (editingEntry || isCreating) {
@@ -120,7 +121,7 @@ export function MusicPage() {
                                     title="Edit">
                                     <Pencil size={15} />
                                 </button>
-                                <button onClick={() => handleDelete(entry.id)}
+                                <button onClick={() => openDeletePreview(entry)}
                                     className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded transition"
                                     title="Delete">
                                     <Trash2 size={15} />
@@ -135,6 +136,20 @@ export function MusicPage() {
                     )}
                 </div>
             </div>
+            {previewEntry && deleteAction && (
+                <EntryPreviewModal
+                    entryType="music"
+                    entry={previewEntry}
+                    isOpen={isPreviewOpen}
+                    onClose={() => {
+                        setIsPreviewOpen(false);
+                        setPreviewEntry(null);
+                        setDeleteAction(null);
+                    }}
+                    onDelete={deleteAction}
+                    deleteLabel="Delete Music"
+                />
+            )}
         </div>
     );
 }

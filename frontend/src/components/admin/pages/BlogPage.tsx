@@ -4,6 +4,7 @@ import type { BlogEntry } from '../../../types/blog';
 import { Pencil, Trash2, Plus, RefreshCw, ExternalLink, FileText } from 'lucide-react';
 import { BlogForm } from '../components/BlogForm';
 import { useToast } from '../components/ToastContext';
+import { EntryPreviewModal } from '../components/EntryPreviewModal';
 
 export function BlogPage() {
     const [entries, setEntries] = useState<BlogEntry[]>([]);
@@ -11,6 +12,9 @@ export function BlogPage() {
     const [error, setError] = useState<string | null>(null);
     const [editingEntry, setEditingEntry] = useState<BlogEntry | null>(null);
     const [isCreating, setIsCreating] = useState(false);
+    const [previewEntry, setPreviewEntry] = useState<BlogEntry | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [deleteAction, setDeleteAction] = useState<(() => Promise<void>) | null>(null);
     const toast = useToast();
 
     const loadEntries = async () => {
@@ -30,17 +34,14 @@ export function BlogPage() {
         loadEntries();
     }, []);
 
-    const handleDelete = async (id: string | undefined) => {
-        if (!id) return;
-        toast.confirm('Are you sure you want to delete this blog entry?', async () => {
-            try {
-                await adminDeleteBlog(id);
-                setEntries(prev => prev.filter(e => e.id !== id));
-                toast.success('Blog entry deleted');
-            } catch (err: any) {
-                toast.error(err.message);
-            }
+    const openDeletePreview = (entry: BlogEntry) => {
+        setPreviewEntry(entry);
+        setDeleteAction(() => async () => {
+            await adminDeleteBlog(entry.id);
+            setEntries(prev => prev.filter(e => e.id !== entry.id));
+            toast.success('Blog entry deleted');
         });
+        setIsPreviewOpen(true);
     };
 
     if (editingEntry || isCreating) {
@@ -121,7 +122,7 @@ export function BlogPage() {
                                     title="Edit">
                                     <Pencil size={15} />
                                 </button>
-                                <button onClick={() => handleDelete(entry.id)}
+                                <button onClick={() => openDeletePreview(entry)}
                                     className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded transition"
                                     title="Delete">
                                     <Trash2 size={15} />
@@ -136,6 +137,20 @@ export function BlogPage() {
                     )}
                 </div>
             </div>
+            {previewEntry && deleteAction && (
+                <EntryPreviewModal
+                    entryType="blog"
+                    entry={previewEntry}
+                    isOpen={isPreviewOpen}
+                    onClose={() => {
+                        setIsPreviewOpen(false);
+                        setPreviewEntry(null);
+                        setDeleteAction(null);
+                    }}
+                    onDelete={deleteAction}
+                    deleteLabel="Delete Blog Entry"
+                />
+            )}
         </div>
     );
 }

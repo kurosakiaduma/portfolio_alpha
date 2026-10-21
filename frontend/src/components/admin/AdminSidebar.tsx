@@ -1,4 +1,4 @@
-import { LayoutDashboard, Code, ShieldCheck, FolderGit2, Music, MessageSquareText } from 'lucide-react';
+import { LayoutDashboard, Code, ShieldCheck, FolderGit2, Music, MessageSquareText, Inbox } from 'lucide-react';
 
 const navItems = [
     { href: '/alter/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -7,6 +7,7 @@ const navItems = [
     { href: '/alter/projects', label: 'Projects', icon: FolderGit2 },
     { href: '/alter/music', label: 'Music', icon: Music },
     { href: '/alter/blog', label: 'Blog', icon: MessageSquareText },
+    { href: '/alter/messages', label: 'Messages', icon: Inbox },
 ];
 
 interface AdminSidebarProps {

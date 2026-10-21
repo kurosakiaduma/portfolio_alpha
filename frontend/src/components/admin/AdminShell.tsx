@@ -8,9 +8,10 @@ import { CertificationsPage } from './pages/CertificationsPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { MusicPage } from './pages/MusicPage';
 import { BlogPage } from './pages/BlogPage';
+import { MessagesPage } from './pages/MessagesPage';
 import './admin.css';
 
-type AdminPage = 'dashboard' | 'skills' | 'certifications' | 'projects' | 'music' | 'blog';
+type AdminPage = 'dashboard' | 'skills' | 'certifications' | 'projects' | 'music' | 'blog' | 'messages';
 
 const PAGE_COMPONENTS: Record<AdminPage, React.ComponentType> = {
     dashboard: DashboardPage,
@@ -19,6 +20,7 @@ const PAGE_COMPONENTS: Record<AdminPage, React.ComponentType> = {
     projects: ProjectsPage,
     music: MusicPage,
     blog: BlogPage,
+    messages: MessagesPage,
 };
 
 interface AdminShellProps {

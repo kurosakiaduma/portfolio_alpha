@@ -13,4 +13,5 @@ export interface Project {
   featured: boolean;
   source: 'github' | 'manual';
   display_order: number;
+  readme_summary?: string | null;
 }

@@ -1,0 +1,103 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { ImageGallery } from '../../components/ImageGallery';
+import type { Project } from '../../types/projects';
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '/api';
+
+export async function getStaticPaths() {
+  const res = await fetch(`${API_BASE_URL}/projects`);
+  const projects: Project[] = res.ok ? await res.json() : [];
+
+  return projects.map((project) => ({ params: { slug: project.slug } }));
+}
+
+const { slug } = Astro.params;
+const projectRes = await fetch(`${API_BASE_URL}/projects/${slug}`);
+
+if (!projectRes.ok) {
+  throw new Error('Project not found');
+}
+
+const project: Project = await projectRes.json();
+---
+
+<Layout
+  title={`${project.title} • Project`}
+  description={project.short_description || project.description}
+  ogTitle={project.title}
+  ogDescription={project.short_description || project.description}
+  ogImage={project.cover_image ?? '/og-image.jpg'}
+>
+  <section class="py-20 px-6 lg:px-12 max-w-6xl mx-auto">
+    <div class="mb-10">
+      <p class="text-xs uppercase font-mono tracking-[0.4em] text-cyan-400 mb-2">Project</p>
+      <h1 class="text-4xl md:text-5xl font-pixel text-white mb-4">{project.title}</h1>
+      <p class="text-slate-400 max-w-3xl leading-relaxed">{project.short_description || project.description}</p>
+    </div>
+
+    <div class="grid gap-8 lg:grid-cols-[1.4fr_0.6fr] items-start">
+      <div class="space-y-8">
+        <div class="rounded-3xl overflow-hidden border border-slate-700 bg-slate-950/80 shadow-xl">
+          <ImageGallery
+            client:load
+            images={project.images || []}
+            cover={project.cover_image}
+            alt={project.title}
+            className="w-full h-[420px]"
+          />
+        </div>
+
+        <div class="rounded-3xl border border-slate-700 bg-slate-900 p-6">
+          <h2 class="font-mono text-cyan-300 text-sm uppercase tracking-[0.25em] mb-3">Overview</h2>
+          <p class="text-slate-200 leading-relaxed whitespace-pre-line">{project.description}</p>
+        </div>
+
+        {project.readme_summary && (
+          <details class="rounded-3xl border border-slate-700 bg-slate-900 p-6 open:bg-slate-950/90">
+            <summary class="cursor-pointer font-mono text-cyan-300 text-sm uppercase tracking-[0.25em] mb-3 list-none">Documentation</summary>
+            <div class="mt-4 text-slate-200 leading-relaxed whitespace-pre-line text-sm">{project.readme_summary}</div>
+          </details>
+        )}
+      </div>
+
+      <aside class="space-y-6">
+        <div class="rounded-3xl border border-slate-700 bg-slate-900 p-6">
+          <h2 class="font-mono text-cyan-300 text-sm uppercase tracking-[0.25em] mb-3">Project details</h2>
+          <div class="space-y-3 text-sm text-slate-300">
+            <div>
+              <span class="font-semibold text-slate-100">Year:</span> <span>{project.year}</span>
+            </div>
+            <div>
+              <span class="font-semibold text-slate-100">Tech stack:</span>
+              <div class="mt-2 flex flex-wrap gap-2">
+                {project.tech.map((tag) => (
+                  <span class="inline-flex items-center rounded-full border border-cyan-400/20 bg-slate-800 px-3 py-1 text-[11px] text-cyan-200 font-mono">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 mt-4">
+              {project.github_url && (
+                <a href={project.github_url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-200 hover:bg-cyan-500/20 transition">
+                  View on GitHub
+                </a>
+              )}
+              {project.live_url && (
+                <a href={project.live_url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-full border border-pink-400/30 bg-pink-500/10 px-4 py-2 text-sm text-pink-200 hover:bg-pink-500/20 transition">
+                  Visit live demo
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-slate-700 bg-slate-900 p-6">
+          <h2 class="font-mono text-cyan-300 text-sm uppercase tracking-[0.25em] mb-3">Source</h2>
+          <p class="text-slate-300 text-sm">{project.source === 'github' ? 'GitHub-backed project' : 'Manual project entry'}</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Layout>

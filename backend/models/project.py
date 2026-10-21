@@ -17,3 +17,4 @@ class Project(BaseModel):
     featured: bool = Field(default=False)
     source: Literal["github", "manual"] = Field(default="manual")
     display_order: int = Field(default=0)
+    readme_summary: Optional[str] = None

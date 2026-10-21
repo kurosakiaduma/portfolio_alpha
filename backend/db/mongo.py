@@ -197,7 +197,7 @@ async def get_blog_documents(
 		filter = {}
 	logger.debug("Querying blog_entries with filter=%s sort=%s limit=%s", filter, sort, limit)
 	try:
-		cursor = db.blog_entries.find(filter)
+		cursor = db.blogs.find(filter)
 		if sort:
 			cursor = cursor.sort(sort)
 		docs = await cursor.to_list(length=limit or None)
@@ -205,6 +205,28 @@ async def get_blog_documents(
 		return docs
 	except Exception as exc:
 		logger.exception("Error fetching blog entries: %s", exc)
+		return []
+
+
+async def get_contact_message_documents(
+	filter: Optional[Dict[str, Any]] = None,
+	sort: Optional[List[tuple]] = None,
+	limit: Optional[int] = None,
+) -> List[Dict[str, Any]]:
+	"""Fetch contact message documents from the `contact_messages` collection."""
+	db = get_db()
+	if filter is None:
+		filter = {}
+	logger.debug("Querying contact_messages with filter=%s sort=%s limit=%s", filter, sort, limit)
+	try:
+		cursor = db.contact_messages.find(filter)
+		if sort:
+			cursor = cursor.sort(sort)
+		docs = await cursor.to_list(length=limit or None)
+		logger.info("Fetched %d contact message documents", len(docs))
+		return docs
+	except Exception as exc:
+		logger.exception("Error fetching contact messages: %s", exc)
 		return []
 
 
@@ -274,6 +296,7 @@ __all__ = [
 	"get_project_documents",
 	"get_music_documents",
 	"get_blog_documents",
+	"get_contact_message_documents",
 	"get_document_by_slug",
 	"get_admin_user_by_email",
 	"insert_admin_user",

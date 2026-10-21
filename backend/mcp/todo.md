@@ -1,0 +1,1 @@
+Pre-Warm the Model on Landing: You can design your portfolio frontend to send a silent, empty request to your backend the second a user lands on your homepage. While they are busy reading your bio and looking at your projects, Ollama is already loading the model in the background. By the time they click on the chatbot tab, the model is warm and ready to go.

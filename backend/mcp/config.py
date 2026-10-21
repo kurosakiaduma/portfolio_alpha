@@ -10,8 +10,8 @@ class MCPSettings(BaseSettings):
     """Settings for the MCP chatbot."""
     
     # Ollama Configuration
-    llm_provider: str = os.getenv("MCP_LLM_PROVIDER", "ollama")  # "openai" | "anthropic" | "ollama"
-    ollama_host: str = os.getenv("MCP_OLLA_HOST", "http://localhost:11434")  # Or EC2 private IP
+    llm_provider: str = os.getenv("MCP_LLM_PROVIDER", "ollama")  # "openai" | "anthropic" | "ollama" | "custom"
+    ollama_host: str = os.getenv("MCP_OLLA_HOST", "http://localhost:11434")
     ollama_model: str = os.getenv("MCP_OLLA_MODEL", "llama3.1:8b-instruct-q4_K_M")
 
 
@@ -24,7 +24,8 @@ class MCPSettings(BaseSettings):
     Be concise, friendly, and professional. Use the available tools to fetch accurate information."""
     
     class Config:
-        env_file = "local.env"
+        env_file = ".env"
         env_prefix = "MCP_"
+        extra = "allow"
 
 mcp_settings = MCPSettings()

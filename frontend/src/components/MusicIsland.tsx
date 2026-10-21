@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { MusicEntry } from "../types/music";
 import { getMusic } from "../lib/api";
+import useBreakpoint from "../lib/useBreakpoint";
 
 // ── Fisher-Yates shuffle (pure, returns a new array) ─────────────────────────
 function shuffleArray<T>(arr: T[]): T[] {
@@ -74,7 +75,7 @@ interface MusicCardProps {
   onPlay: (entry: MusicEntry) => void;
 }
 
-function MusicCard({ entry, isPlaying, onPlay }: MusicCardProps) {
+export function MusicCard({ entry, isPlaying, onPlay }: MusicCardProps) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -192,6 +193,8 @@ export default function MusicIsland() {
   const [entries, setEntries] = useState<MusicEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeEntry, setActiveEntry] = useState<MusicEntry | null>(null);
+  const breakpoint = useBreakpoint();
+  const isCarousel = ["xs", "sm", "md"].includes(breakpoint);
 
   useEffect(() => {
     getMusic()
@@ -227,6 +230,11 @@ export default function MusicIsland() {
     );
   }
 
+  const listClass = isCarousel
+    ? "flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory carousel-scroll"
+    : "flex flex-wrap gap-4";
+  const itemWrapperClass = isCarousel ? "snap-start flex-shrink-0" : "";
+
   return (
     <section className="py-12 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
       {/* Hidden YouTube iframe — renders only while a track is active */}
@@ -235,14 +243,15 @@ export default function MusicIsland() {
       )}
 
       {/* Card grid */}
-      <div className="flex flex-wrap gap-4">
+      <div className={listClass}>
         {shuffledEntries.map((entry) => (
-          <MusicCard
-            key={entry.id ?? `${entry.title}-${entry.artist}`}
-            entry={entry}
-            isPlaying={activeEntry?.id === entry.id}
-            onPlay={handlePlay}
-          />
+          <div key={entry.id ?? `${entry.title}-${entry.artist}`} className={itemWrapperClass}>
+            <MusicCard
+              entry={entry}
+              isPlaying={activeEntry?.id === entry.id}
+              onPlay={handlePlay}
+            />
+          </div>
         ))}
       </div>
 

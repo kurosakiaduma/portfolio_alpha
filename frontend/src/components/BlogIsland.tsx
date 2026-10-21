@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { BlogEntry } from "../types/blog";
 import { getBlog } from "../lib/api";
+import useBreakpoint from "../lib/useBreakpoint";
 
 // ── Loading skeleton ──────────────────────────────────────────────────────────
 function BlogCardSkeleton() {
@@ -34,7 +35,7 @@ function TagPill({ tag, active, onClick }: { tag: string; active?: boolean; onCl
 }
 
 // ── Blog card ─────────────────────────────────────────────────────────────────
-function BlogCard({ entry }: { entry: BlogEntry }) {
+export function BlogCard({ entry }: { entry: BlogEntry }) {
   const dateStr = entry.published_date
     ? new Date(entry.published_date).toLocaleDateString("en-US", {
         year: "numeric",
@@ -138,6 +139,8 @@ export default function BlogIsland() {
   const [entries, setEntries] = useState<BlogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTags, setActiveTags] = useState<string[]>([]);
+  const breakpoint = useBreakpoint();
+  const isCarousel = ["xs", "sm", "md"].includes(breakpoint);
 
   useEffect(() => {
     getBlog()
@@ -193,9 +196,19 @@ export default function BlogIsland() {
           No entries match the selected tags.
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div
+          className={isCarousel
+            ? "flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory carousel-scroll"
+            : "grid grid-cols-1 sm:grid-cols-2 gap-4"
+          }
+        >
           {filtered.map((entry) => (
-            <BlogCard key={entry.id ?? entry.url} entry={entry} />
+            <div
+              key={entry.id ?? entry.url}
+              className={isCarousel ? "snap-start flex-shrink-0 min-w-[80vw] sm:min-w-[45vw] md:min-w-[40vw]" : ""}
+            >
+              <BlogCard entry={entry} />
+            </div>
           ))}
         </div>
       )}

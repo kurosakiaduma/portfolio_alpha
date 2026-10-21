@@ -4,6 +4,7 @@ import { getProjects } from "../lib/api";
 import { filterProjects } from "../lib/projectFilters";
 import type { ProjectFilters } from "../lib/projectFilters";
 import { ImageGallery } from "./ImageGallery";
+import useBreakpoint from "../lib/useBreakpoint";
 
 const API_BASE_URL = (import.meta as any).env?.PUBLIC_API_URL || "/api";
 
@@ -37,15 +38,16 @@ function TagPill({ tag, small = false }: { tag: string; small?: boolean }) {
 }
 
 // ── Project card ──────────────────────────────────────────────────────────────
-function ProjectCard({ project }: { project: Project }) {
+export function ProjectCard({ project }: { project: Project }) {
   const [hovered, setHovered] = useState(false);
   const visibleTags = project.tech.slice(0, 3);
   const extraCount = project.tech.length - 3;
 
   return (
-    <div
-      className="relative rounded-xl overflow-hidden border border-slate-700/50 bg-slate-900/80
-        transition-all duration-300 hover:border-cyan-400/40 hover:-translate-y-1 cursor-pointer"
+    <a
+      href={`/projects/${project.slug}`}
+      className="group block relative rounded-xl overflow-hidden border border-slate-700/50 bg-slate-900/80
+        transition-all duration-300 hover:border-cyan-400/40 hover:-translate-y-1"
       style={{ minHeight: "320px" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -105,30 +107,48 @@ function ProjectCard({ project }: { project: Project }) {
         </div>
         <div className="flex gap-3 mt-auto pt-2 border-t border-slate-700/50">
           {project.github_url && (
-            <a
-              href={project.github_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors"
-              onClick={(e) => e.stopPropagation()}
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(project.github_url, "_blank", "noopener,noreferrer");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  window.open(project.github_url, "_blank", "noopener,noreferrer");
+                }
+              }}
+              className="text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer"
             >
               GitHub →
-            </a>
+            </span>
           )}
           {project.live_url && (
-            <a
-              href={project.live_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-mono text-pink-400 hover:text-pink-300 transition-colors"
-              onClick={(e) => e.stopPropagation()}
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(project.live_url, "_blank", "noopener,noreferrer");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  window.open(project.live_url, "_blank", "noopener,noreferrer");
+                }
+              }}
+              className="text-xs font-mono text-pink-400 hover:text-pink-300 transition-colors cursor-pointer"
             >
               Live Demo →
-            </a>
+            </span>
           )}
         </div>
       </div>
-    </div>
+    </a>
   );
 }
 
@@ -137,9 +157,10 @@ function FeaturedCard({ project }: { project: Project }) {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <div
-      className="relative rounded-xl overflow-hidden border border-pink-400/30 bg-slate-900/80
-        transition-all duration-300 hover:border-pink-400/60 hover:-translate-y-1 cursor-pointer flex-shrink-0"
+    <a
+      href={`/projects/${project.slug}`}
+      className="group block relative rounded-xl overflow-hidden border border-pink-400/30 bg-slate-900/80
+        transition-all duration-300 hover:border-pink-400/60 hover:-translate-y-1 flex-shrink-0 snap-start"
       style={{ width: "320px", minHeight: "200px" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -183,22 +204,48 @@ function FeaturedCard({ project }: { project: Project }) {
         </div>
         <div className="flex gap-3 pt-2 border-t border-slate-700/50">
           {project.github_url && (
-            <a href={project.github_url} target="_blank" rel="noopener noreferrer"
-              className="text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors"
-              onClick={(e) => e.stopPropagation()}>
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(project.github_url, "_blank", "noopener,noreferrer");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  window.open(project.github_url, "_blank", "noopener,noreferrer");
+                }
+              }}
+              className="text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer"
+            >
               GitHub →
-            </a>
+            </span>
           )}
           {project.live_url && (
-            <a href={project.live_url} target="_blank" rel="noopener noreferrer"
-              className="text-xs font-mono text-pink-400 hover:text-pink-300 transition-colors"
-              onClick={(e) => e.stopPropagation()}>
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(project.live_url, "_blank", "noopener,noreferrer");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  window.open(project.live_url, "_blank", "noopener,noreferrer");
+                }
+              }}
+              className="text-xs font-mono text-pink-400 hover:text-pink-300 transition-colors cursor-pointer"
+            >
               Live Demo →
-            </a>
+            </span>
           )}
         </div>
       </div>
-    </div>
+    </a>
   );
 }
 
@@ -277,6 +324,8 @@ export default function ProjectsIsland() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<ProjectFilters>({ tags: [], year: "", featuredOnly: false });
+  const breakpoint = useBreakpoint();
+  const isCarousel = ["xs", "sm", "md"].includes(breakpoint);
 
   useEffect(() => {
     getProjects()
@@ -305,6 +354,12 @@ export default function ProjectsIsland() {
     () => filtered.filter((p) => !p.featured || filters.featuredOnly || filters.tags.length > 0 || filters.year),
     [filtered, filters]
   );
+  const projectSectionClass = isCarousel
+    ? "flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory carousel-scroll"
+    : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
+  const projectCardWrapper = isCarousel
+    ? "snap-start flex-shrink-0 w-[80vw] sm:w-[45vw] md:w-[40vw]"
+    : "";
 
   if (loading) {
     return (
@@ -340,7 +395,7 @@ export default function ProjectsIsland() {
           <h3 className="text-xs font-mono text-pink-300/70 uppercase tracking-widest mb-3">
             ★ Featured
           </h3>
-          <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: "thin" }}>
+          <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory carousel-scroll" style={{ scrollbarWidth: "thin" }}>
             {featuredProjects.map((p) => (
               <FeaturedCard key={p.id ?? p.slug} project={p} />
             ))}
@@ -352,9 +407,11 @@ export default function ProjectsIsland() {
       {filtered.length === 0 ? (
         <p className="text-center text-text-muted font-mono py-8">No projects match the current filters.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={projectSectionClass}>
           {filtered.map((p) => (
-            <ProjectCard key={p.id ?? p.slug} project={p} />
+            <div key={p.id ?? p.slug} className={projectCardWrapper}>
+              <ProjectCard project={p} />
+            </div>
           ))}
         </div>
       )}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import type { Skill, Certification, DegreeData } from "../types/skills";
 import SkillCard from "./SkillCard";
+import useBreakpoint from "../lib/useBreakpoint";
 
 const API_BASE_URL = (import.meta as any).env?.PUBLIC_API_URL || "/api";
 
@@ -81,6 +82,8 @@ export default function SkillsIsland() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [loading, setLoading] = useState(true);
+  const breakpoint = useBreakpoint();
+  const isCarousel = ["xs", "sm", "md"].includes(breakpoint);
 
   useEffect(() => {
     async function load() {
@@ -138,22 +141,33 @@ export default function SkillsIsland() {
     );
   }
 
+  const wrapperClass = isCarousel
+    ? "flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory carousel-scroll"
+    : "skills-grid";
+  const itemWrapperClass = isCarousel ? "snap-start flex-shrink-0 min-w-[220px] h-[220px]" : "";
+
   return (
     <section className="py-12 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
-      <div className="skills-grid">
+      <div className={wrapperClass}>
         {allItems.map((item, idx) => {
-          if (item.skill_type === "degree") {
-            return <DegreeCard key={item.id ?? idx} item={item as DegreeData} />;
-          }
-          if (item.skill_type === "certificate") {
+          const itemKey = item.id ?? idx;
+          const card = item.skill_type === "degree" ? (
+            <DegreeCard key={itemKey} item={item as DegreeData} />
+          ) : item.skill_type === "certificate" ? (
+            <CertificationCard key={itemKey} item={item as Certification} />
+          ) : (
+            <SkillCard key={itemKey} skill={item as Skill} />
+          );
+
+          if (isCarousel) {
             return (
-              <CertificationCard
-                key={item.id ?? idx}
-                item={item as Certification}
-              />
+              <div key={itemKey} className={itemWrapperClass}>
+                {card}
+              </div>
             );
           }
-          return <SkillCard key={item.id ?? idx} skill={item as Skill} />;
+
+          return card;
         })}
       </div>
     </section>

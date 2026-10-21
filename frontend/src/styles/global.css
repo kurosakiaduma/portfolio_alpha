@@ -428,9 +428,18 @@ body {
     hover:border-cyan-400/50 hover:text-cyan-300;
 }
 
-.filter-pill.active {
+..filter-pill.active {
   @apply border-cyan-400 text-cyan-300 bg-slate-800/80;
   box-shadow: 0 0 12px rgba(0, 255, 213, 0.3);
+}
+
+.carousel-scroll {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.carousel-scroll > * {
+  scroll-snap-align: start;
 }
 
 /* ============================================================================

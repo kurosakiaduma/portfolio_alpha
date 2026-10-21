@@ -9,6 +9,7 @@ interface Model3DProps {
   size?: { width: number; height: number };
   autoRotate?: boolean;
   cameraPosition?: [number, number, number];
+  key?: string;
 }
 
 export default function Model3D({

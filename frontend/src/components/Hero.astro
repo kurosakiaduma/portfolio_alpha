@@ -12,7 +12,6 @@ import Model3D from './Model3D.tsx';
       <div class="avatar-model w-80 h-80 sm:w-96 sm:h-96 lg:w-[48rem] lg:h-[48rem] rounded-full bg-gradient-to-br from-retro-cyan/10 to-retro-magenta/10 flex items-center justify-center overflow-hidden">
         <Model3D 
           client:load
-          key="hero-model"
           modelPath="/animated_model.glb"
           size={{ width: 750, height: 750 }}
           autoRotate={true}
@@ -59,6 +58,7 @@ import Model3D from './Model3D.tsx';
         <div class="absolute inset-0 bg-retro-magenta opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full"></div>
       </a>
     </div>
+
   </div>
   </div>
   
@@ -67,7 +67,7 @@ import Model3D from './Model3D.tsx';
     <div class="flex flex-col items-center space-y-2">
       <span class="text-text-muted font-mono text-xs hidden sm:block">SCROLL</span>
       <div class="scroll-arrow w-4 h-6 sm:w-5 sm:h-8 border-2 border-retro-lime rounded-full relative">
-        <div class="scroll-dot w-1 h-1 bg-retro-lime rounded-full absolute top-1 sm:top-1.5 left-[calc(50%-0.5px)]"></div>
+        <div class="scroll-dot w-1 h-1 bg-retro-lime rounded-full absolute top-1 sm:top-1.5 left-[calc(40%-0.5px)]"></div>
       </div>
     </div>
   </div>

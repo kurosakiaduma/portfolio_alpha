@@ -1,5 +1,5 @@
 # robots.txt for Phylo Application
-# Served at https://taduma.me/phylo/
+# Served at https://tjaduma.me/phylo/
 
 User-agent: *
 
@@ -21,7 +21,7 @@ Disallow: /_next/data/
 Allow: /_next/static/
 
 # Sitemap location (create this in Phylo if you want a dedicated sitemap)
-Sitemap: https://taduma.me/phylo/sitemap.xml
+Sitemap: https://tjaduma.me/phylo/sitemap.xml
 
 # Crawl-delay for polite bots
 Crawl-delay: 1

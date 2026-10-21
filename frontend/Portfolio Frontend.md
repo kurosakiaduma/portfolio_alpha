@@ -74,8 +74,8 @@ pnpm preview  # preview the build
 Create a `.env` file:
 
 ```env
-PUBLIC_API_URL=https://taduma.me/api
-PUBLIC_SITE_URL=https://taduma.me
+PUBLIC_API_URL=https://tjaduma.me/api
+PUBLIC_SITE_URL=https://tjaduma.me
 ```
 
 ---

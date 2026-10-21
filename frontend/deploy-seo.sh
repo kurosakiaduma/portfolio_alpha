@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# SEO and Nginx Deployment Script for taduma.me
+# SEO and Nginx Deployment Script for tjaduma.me
 # This script deploys robots.txt, sitemap, and nginx config updates
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PORTFOLIO_DIR="/home/portfolio/frontend"
 PHYLO_ROBOTS_DIR="/var/www/phylo/apps/frontend/family-tree/public"
-NGINX_CONF="/etc/nginx/sites-available/taduma.conf"
+NGINX_CONF="/etc/nginx/sites-available/tjaduma.conf"
 
-echo "🚀 Starting SEO Deployment for taduma.me"
+echo "🚀 Starting SEO Deployment for tjaduma.me"
 echo "=========================================="
 
 # Function to check if command succeeded
@@ -46,14 +46,14 @@ fi
 # Step 3: Backup and update nginx config
 echo ""
 echo "⚙️  Step 3: Updating nginx configuration..."
-if [ -f "$SCRIPT_DIR/taduma.conf" ]; then
+if [ -f "$SCRIPT_DIR/tjaduma.conf" ]; then
     # Create backup with timestamp
     BACKUP_FILE="$NGINX_CONF.backup-$(date +%Y%m%d-%H%M%S)"
     sudo cp "$NGINX_CONF" "$BACKUP_FILE"
     echo "📦 Backup created: $BACKUP_FILE"
     
     # Copy new config
-    sudo cp "$SCRIPT_DIR/taduma.conf" "$NGINX_CONF"
+    sudo cp "$SCRIPT_DIR/tjaduma.conf" "$NGINX_CONF"
     check_status "Nginx config updated"
     
     # Test nginx config
@@ -62,7 +62,7 @@ if [ -f "$SCRIPT_DIR/taduma.conf" ]; then
     sudo nginx -t
     check_status "Nginx config test passed"
 else
-    echo "❌ taduma.conf not found in script directory"
+    echo "❌ tjaduma.conf not found in script directory"
     exit 1
 fi
 
@@ -95,40 +95,40 @@ echo "🔍 Step 5: Verifying deployment..."
 echo ""
 
 # Test main robots.txt
-echo "Testing https://taduma.me/robots.txt..."
-if curl -sf https://taduma.me/robots.txt > /dev/null; then
+echo "Testing https://tjaduma.me/robots.txt..."
+if curl -sf https://tjaduma.me/robots.txt > /dev/null; then
     echo "✅ Main robots.txt is accessible"
 else
     echo "❌ Main robots.txt NOT accessible"
 fi
 
 # Test phylo robots.txt
-echo "Testing https://taduma.me/phylo/robots.txt..."
-if curl -sf https://taduma.me/phylo/robots.txt > /dev/null; then
+echo "Testing https://tjaduma.me/phylo/robots.txt..."
+if curl -sf https://tjaduma.me/phylo/robots.txt > /dev/null; then
     echo "✅ Phylo robots.txt is accessible"
 else
     echo "❌ Phylo robots.txt NOT accessible"
 fi
 
 # Test main sitemap
-echo "Testing https://taduma.me/sitemap.xml..."
-if curl -sf https://taduma.me/sitemap.xml > /dev/null; then
+echo "Testing https://tjaduma.me/sitemap.xml..."
+if curl -sf https://tjaduma.me/sitemap.xml > /dev/null; then
     echo "✅ Main sitemap is accessible"
 else
     echo "❌ Main sitemap NOT accessible"
 fi
 
 # Test main site
-echo "Testing https://taduma.me/..."
-if curl -sf -o /dev/null https://taduma.me/; then
+echo "Testing https://tjaduma.me/..."
+if curl -sf -o /dev/null https://tjaduma.me/; then
     echo "✅ Main site is accessible"
 else
     echo "❌ Main site NOT accessible"
 fi
 
 # Test phylo site
-echo "Testing https://taduma.me/phylo/..."
-if curl -sf -o /dev/null https://taduma.me/phylo/; then
+echo "Testing https://tjaduma.me/phylo/..."
+if curl -sf -o /dev/null https://tjaduma.me/phylo/; then
     echo "✅ Phylo site is accessible"
 else
     echo "❌ Phylo site NOT accessible"
@@ -139,8 +139,8 @@ echo "=========================================="
 echo "✨ Deployment Complete!"
 echo ""
 echo "Next steps:"
-echo "1. Visit https://taduma.me/robots.txt to verify"
-echo "2. Visit https://taduma.me/sitemap.xml to verify"
+echo "1. Visit https://tjaduma.me/robots.txt to verify"
+echo "2. Visit https://tjaduma.me/sitemap.xml to verify"
 echo "3. Submit sitemap to Google Search Console"
 echo "4. Submit sitemap to Bing Webmaster Tools"
 echo ""

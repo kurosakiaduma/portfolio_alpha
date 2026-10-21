@@ -209,18 +209,18 @@ Create `/etc/nginx/sites-available/portfolio` on your production server:
 # Redirect HTTP to HTTPS
 server {
     listen 80;
-    server_name taduma.me www.taduma.me;
+    server_name tjaduma.me www.tjaduma.me;
     return 301 https://$server_name$request_uri;
 }
 
 # Main HTTPS server block
 server {
     listen 443 ssl http2;
-    server_name taduma.me www.taduma.me;
+    server_name tjaduma.me www.tjaduma.me;
 
     # SSL Configuration
-    ssl_certificate /etc/letsencrypt/live/taduma.me/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/taduma.me/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/tjaduma.me/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/tjaduma.me/privkey.pem;
     
     # SSL Security Settings
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -292,8 +292,8 @@ sudo yum install certbot python3-certbot-nginx
 ### 2. Obtain SSL Certificate
 
 ```bash
-# Obtain SSL certificate for taduma.me
-sudo certbot --nginx -d taduma.me -d www.taduma.me
+# Obtain SSL certificate for tjaduma.me
+sudo certbot --nginx -d tjaduma.me -d www.tjaduma.me
 ```
 
 ### 3. Auto-renewal Setup
@@ -349,7 +349,7 @@ sudo systemctl enable nginx
 curl http://localhost:3000
 
 # Check SSL certificate
-curl -I https://taduma.me
+curl -I https://tjaduma.me
 
 # Monitor logs
 tail -f /var/log/nginx/portfolio_access.log
@@ -437,7 +437,7 @@ echo "Backup created: $BACKUP_DIR/portfolio_app_$DATE.tar.gz"
 3. **SSL certificate issues**
    ```bash
    # Renew certificate manually
-   sudo certbot renew --force-renewal -d taduma.me
+   sudo certbot renew --force-renewal -d tjaduma.me
    
    # Check certificate expiry
    sudo certbot certificates
@@ -514,4 +514,4 @@ When ready to add the backend:
 
 ---
 
-**Note**: This guide is configured for the domain `taduma.me`. All SSL certificates and Nginx configurations are set up for this domain.
+**Note**: This guide is configured for the domain `tjaduma.me`. All SSL certificates and Nginx configurations are set up for this domain.

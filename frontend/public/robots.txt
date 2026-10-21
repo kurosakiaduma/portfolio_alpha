@@ -1,4 +1,4 @@
-# robots.txt for taduma.me
+# robots.txt for tjaduma.me
 # Main Portfolio Site
 
 User-agent: *
@@ -35,7 +35,7 @@ Allow: /*.woff2$
 Allow: /*.ttf$
 
 # Sitemap location
-Sitemap: https://taduma.me/sitemap.xml
+Sitemap: https://tjaduma.me/sitemap.xml
 
 # Crawl-delay for polite bots
 Crawl-delay: 1

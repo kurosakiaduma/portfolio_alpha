@@ -31,7 +31,7 @@ export function AdminLayout() {
                     <span className="text-xs px-2 py-1 bg-slate-800 text-slate-400 rounded border border-slate-700">Admin</span>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="text-sm text-slate-400">{user?.email || 'admin@taduma.me'}</div>
+                    <div className="text-sm text-slate-400">{user?.email || 'admin@tjaduma.me'}</div>
                     <button 
                         onClick={handleLogout}
                         className="p-2 hover:bg-slate-800 rounded-md text-slate-400 hover:text-red-400 transition-colors"
